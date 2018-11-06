@@ -6,7 +6,7 @@ import matplotlib.pyplot as PLT
 import matplotlib.pyplot as plt
 import numpy as np
 lengendfontsize = 10
-markersize = 9
+markersize = 12
 dictsize = 8
 plt.rcParams.update({'font.size': 8})
 col = ['palevioletred', 'm', 'plum', 'darkorchid', 'blue', 'navy', 'deepskyblue', 'darkcyan', 'seagreen', 'darkgreen',
@@ -125,7 +125,7 @@ class TaylorDiagram(object):
         return contours
 
 
-def plot_daylor_graph(data, models, fig, rect, bbox_to_anchor=(1.10, 0.95), datamask=None):
+def plot_Taylor_graph(data, models, fig, rect, bbox_to_anchor=(1.10, 0.95), datamask=None):
     # Reference dataset
     # '''plot taylor graph with single model'''
     refstd_un = data.std(ddof=1)  # Reference standard deviation
@@ -137,8 +137,11 @@ def plot_daylor_graph(data, models, fig, rect, bbox_to_anchor=(1.10, 0.95), data
         # print([[m.std(ddof=1)/refstd_un, NP.ma.corrcoef(data, m)[0, 1]] for m in models])
         if datamask is None:
             samples = NP.array([[np.ma.std(m, ddof=1)/refstd_un, abs(NP.ma.corrcoef(data, m)[0, 1])] for m in models])
+            samples = np.nan_to_num(samples)
+            print(samples)
         else:
             samples = NP.array([[np.ma.std(m, ddof=1) / refstd_un, abs(NP.ma.corrcoef(data[~datamask[j].mask], m)[0, 1])] for j, m in enumerate(models)])
+
         all_reference.extend(
                 [np.ma.std(m, ddof=1) / refstd_un if np.ma.fix_invalid(m).all() is not np.ma.masked else 1.0 for m in
                  models])
@@ -172,7 +175,7 @@ def plot_daylor_graph(data, models, fig, rect, bbox_to_anchor=(1.10, 0.95), data
     return fig, samples
 
 
-def plot_daylor_graph_season_cycle(data1, data2, data3, data4, data5, model1, model2, model3, model4, model5, fig, rect, ref_times,bbox_to_anchor=(1.05,0.23)):
+def plot_Taylor_graph_season_cycle(data1, data2, data3, data4, data5, model1, model2, model3, model4, model5, fig, rect, ref_times,bbox_to_anchor=(1.05,0.23),modnumber=None):
     # Reference dataset
     refstd_un1 = data1.std(ddof=1)  # Reference standard deviation
     refstd_un2 = data2.std(ddof=1)  # Reference standard deviation
@@ -214,22 +217,39 @@ def plot_daylor_graph_season_cycle(data1, data2, data3, data4, data5, model1, mo
     # ax1.legend(numpoints=1, prop=dict(size='small'), loc='best')
 
     # Add samples to Taylor diagram
-    for i, (stddev, corrcoef) in enumerate(samples5):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[4], markersize=markersize,
-                       label="Annual Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples1):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[0], markersize=markersize,
-                       label="DJF Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples2):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[1], markersize=markersize,
-                       label="MAM Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples3):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[2], markersize=markersize,
-                       label="JJA Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples4):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[3], markersize=markersize,
-                       label="SON Model %d" % (i + 1))
 
+    if modnumber is not None:
+        for i, (stddev, corrcoef) in enumerate(samples5):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[4], markersize=markersize,
+                           label="Annual Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples1):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[0], markersize=markersize,
+                           label="DJF Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples2):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[1], markersize=markersize,
+                           label="MAM Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples3):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[2], markersize=markersize,
+                           label="JJA Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples4):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[3], markersize=markersize,
+                           label="SON Model %d" % modnumber)
+    else:
+        for i, (stddev, corrcoef) in enumerate(samples5):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[4], markersize=markersize,
+                           label="Annual Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples1):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[0], markersize=markersize,
+                           label="DJF Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples2):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[1], markersize=markersize,
+                           label="MAM Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples3):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[2], markersize=markersize,
+                           label="JJA Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples4):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[3], markersize=markersize,
+                           label="SON Model %d" % (i + 1))
 
         # Add RMS contours, and label them
     contours = dia.add_contours(colors='0.5')
@@ -243,7 +263,7 @@ def plot_daylor_graph_season_cycle(data1, data2, data3, data4, data5, model1, mo
 
     return fig, samples1, samples2, samples3, samples4, samples5
 
-def plot_daylor_graph_time_basic(data1, data2, data3, model1, model2, model3, fig, rect, ref_times,bbox_to_anchor=(1.002,0.23)):
+def plot_Taylor_graph_time_basic(data1, data2, data3, model1, model2, model3, fig, rect, ref_times,bbox_to_anchor=(1.002,0.23),modnumber=None):
     # Reference dataset
     refstd_un1 = data1.std(ddof=1)  # Reference standard deviation
     refstd_un2 = data2.std(ddof=1)  # Reference standard deviation
@@ -280,18 +300,33 @@ def plot_daylor_graph_time_basic(data1, data2, data3, model1, model2, model3, fi
     # ax1.legend(numpoints=1, prop=dict(size='small'), loc='best')
     # markersize = 8
     # Add samples to Taylor diagram
-    for i, (stddev, corrcoef) in enumerate(samples1):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[0], markersize=markersize,
-                       label="Hourly Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples2):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[1], markersize=markersize,
-                       label="Daily Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples3):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[2], markersize=markersize,
-                       label="Monthly Model %d" % (i + 1))
+
+    if modnumber is not None:
+
+        for i, (stddev, corrcoef) in enumerate(samples1):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[0], markersize=markersize,
+                           label="Hourly Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples2):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[1], markersize=markersize,
+                           label="Daily Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples3):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[2], markersize=markersize,
+                           label="Monthly Model %d" % modnumber)
+    else:
+        for i, (stddev, corrcoef) in enumerate(samples1):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[0], markersize=markersize,
+                           label="Hourly Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples2):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[1], markersize=markersize,
+                           label="Daily Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples3):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[2], markersize=markersize,
+                           label="Monthly Model %d" % (i + 1))
 
 
-        # Add RMS contours, and label them
+
+
+            # Add RMS contours, and label them
     contours = dia.add_contours(colors='0.5')
     PLT.clabel(contours, inline=1, fontsize=dictsize, fmt='%1f')
 
@@ -303,7 +338,7 @@ def plot_daylor_graph_time_basic(data1, data2, data3, model1, model2, model3, fi
 
     return fig, samples1, samples2, samples3
 
-def plot_daylor_graph_three_cycle(data1, data2, data3, model1, model2, model3, fig, rect, ref_times,bbox_to_anchor=(1.05,0.23)):
+def plot_Taylor_graph_three_cycle(data1, data2, data3, model1, model2, model3, fig, rect, ref_times,bbox_to_anchor=(1.05,0.23),modnumber=None):
     # Reference dataset
     refstd_un1 = data1.std(ddof=1)  # Reference standard deviation
     refstd_un2 = data2.std(ddof=1)  # Reference standard deviation
@@ -339,15 +374,26 @@ def plot_daylor_graph_three_cycle(data1, data2, data3, model1, model2, model3, f
     # ax1.legend(numpoints=1, prop=dict(size='small'), loc='best')
     # markersize = 8
     # Add samples to Taylor diagram
-    for i, (stddev, corrcoef) in enumerate(samples1):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[0], markersize=markersize,
-                       label="Daily Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples2):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[1], markersize=markersize,
-                       label="Monthly Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples3):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[2], markersize=markersize,
-                       label="Seasonly Model %d" % (i + 1))
+    if modnumber is None:
+        for i, (stddev, corrcoef) in enumerate(samples1):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[0], markersize=markersize,
+                           label="Daily Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples2):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[1], markersize=markersize,
+                           label="Monthly Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples3):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[2], markersize=markersize,
+                           label="Seasonly Model %d" % (i + 1))
+    else:
+        for i, (stddev, corrcoef) in enumerate(samples1):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[0], markersize=markersize,
+                           label="Daily Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples2):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[1], markersize=markersize,
+                           label="Monthly Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples3):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[2], markersize=markersize,
+                           label="Seasonly Model %d" % modnumber)
 
 
         # Add RMS contours, and label them
@@ -363,7 +409,7 @@ def plot_daylor_graph_three_cycle(data1, data2, data3, model1, model2, model3, f
     return fig, samples1, samples2, samples3
 
 
-def plot_daylor_graph_day_cycle(data1, data2, data3, data4, data5, model1, model2, model3, model4, model5, fig, rect, ref_times, bbox_to_anchor=(1.05,0.23)):
+def plot_Taylor_graph_day_cycle(data1, data2, data3, data4, data5, model1, model2, model3, model4, model5, fig, rect, ref_times, bbox_to_anchor=(1.05,0.23),modnumber=None):
     # Reference dataset
 
     refstd_un1 = data1.std(ddof=1)  # Reference standard deviation
@@ -406,21 +452,39 @@ def plot_daylor_graph_day_cycle(data1, data2, data3, data4, data5, model1, model
     # ax1.legend(numpoints=1, prop=dict(size='small'), loc='best')
     # markersize = 8
     # Add samples to Taylor diagram
-    for i, (stddev, corrcoef) in enumerate(samples5):
-        dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[4], markersize=markersize,
-                       label="Diurnal Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples1):
-        dia.add_sample(stddev, corrcoef, marker = marker[i], ls='', c=colors[0], markersize=markersize,
-                    label="DJF Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples2):
-        dia.add_sample(stddev, corrcoef, marker= marker[i], ls='', c=colors[1], markersize=markersize,
-                   label="MAM Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples3):
-        dia.add_sample(stddev, corrcoef, marker= marker[i], ls='', c=colors[2], markersize=markersize,
-                    label="JJA Model %d" % (i + 1))
-    for i, (stddev, corrcoef) in enumerate(samples4):
-        dia.add_sample(stddev, corrcoef, marker= marker[i], ls='', c=colors[3], markersize=markersize,
-                   label="SON Model %d" % (i + 1))
+    if modnumber is None:
+        for i, (stddev, corrcoef) in enumerate(samples5):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[4], markersize=markersize,
+                           label="Diurnal Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples1):
+            dia.add_sample(stddev, corrcoef, marker = marker[i], ls='', c=colors[0], markersize=markersize,
+                        label="DJF Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples2):
+            dia.add_sample(stddev, corrcoef, marker= marker[i], ls='', c=colors[1], markersize=markersize,
+                       label="MAM Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples3):
+            dia.add_sample(stddev, corrcoef, marker= marker[i], ls='', c=colors[2], markersize=markersize,
+                        label="JJA Model %d" % (i + 1))
+        for i, (stddev, corrcoef) in enumerate(samples4):
+            dia.add_sample(stddev, corrcoef, marker= marker[i], ls='', c=colors[3], markersize=markersize,
+                       label="SON Model %d" % (i + 1))
+    else:
+
+        for i, (stddev, corrcoef) in enumerate(samples5):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[4], markersize=markersize,
+                           label="Diurnal Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples1):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[0], markersize=markersize,
+                           label="DJF Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples2):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[1], markersize=markersize,
+                           label="MAM Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples3):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[2], markersize=markersize,
+                           label="JJA Model %d" % modnumber)
+        for i, (stddev, corrcoef) in enumerate(samples4):
+            dia.add_sample(stddev, corrcoef, marker=marker[i], ls='', c=colors[3], markersize=markersize,
+                           label="SON Model %d" % modnumber)
 
 
                 # Add RMS contours, and label them
