@@ -1,0 +1,461 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["table"]});
+      google.setOnLoadCallback(MeanStateTable);
+      function MeanStateTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string','Model');
+        data.addColumn('string','Data');
+        data.addColumn('number','<span title="Deviation">Deviation [0-1]</span>');
+        data.addColumn('number','<span title="Correlation">Correlation [0-1]</span>');
+        data.addColumn('number','<span title="MSE">MSE [0-1]</span>');
+        data.addColumn('number','<span title="Frequency">Frequency [0-1]</span>');
+        data.addColumn('number','<span title="Mean">Mean [0-1]</span>');
+        data.addColumn('number','<span title="Bias">Bias [0-1]</span>');
+        data.addColumn('number','<span title="Score">Score [0-1]</span>');
+        data.addColumn('number','<span title="Deviation">Deviation [0-1]</span>');
+        data.addColumn('number','<span title="Correlation">Correlation [0-1]</span>');
+        data.addColumn('number','<span title="MSE">MSE [0-1]</span>');
+        data.addColumn('number','<span title="Frequency">Frequency [0-1]</span>');
+        data.addColumn('number','<span title="Mean">Mean [0-1]</span>');
+        data.addColumn('number','<span title="Bias">Bias [0-1]</span>');
+        data.addColumn('number','<span title="Score">Score [0-1]</span>');
+        data.addColumn('number','<span title="Deviation">Deviation [0-1]</span>');
+        data.addColumn('number','<span title="Correlation">Correlation [0-1]</span>');
+        data.addColumn('number','<span title="MSE">MSE [0-1]</span>');
+        data.addColumn('number','<span title="Frequency">Frequency [0-1]</span>');
+        data.addColumn('number','<span title="Mean">Mean [0-1]</span>');
+        data.addColumn('number','<span title="Bias">Bias [0-1]</span>');
+        data.addColumn('number','<span title="Score">Score [0-1]</span>');
+        data.addColumn('number','<span title="Deviation">Deviation [0-1]</span>');
+        data.addColumn('number','<span title="Correlation">Correlation [0-1]</span>');
+        data.addColumn('number','<span title="MSE">MSE [0-1]</span>');
+        data.addColumn('number','<span title="Frequency">Frequency [0-1]</span>');
+        data.addColumn('number','<span title="Mean">Mean [0-1]</span>');
+        data.addColumn('number','<span title="Bias">Bias [0-1]</span>');
+        data.addColumn('number','<span title="Score">Score [0-1]</span>');
+        data.addRows([
+          ['Benchmark','<a href="._Benchmark.nc" download>[-]</a>', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,0.000,0.000,0.000,0.000,0.000,0.000,0.000],
+          ['Model1','<a href="._Model1.nc" download>[-]</a>', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,0.000,0.000,0.000,0.000,0.000,0.000,0.000],
+          ['Model2','<a href="._Model2.nc" download>[-]</a>', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,0.000,0.000,0.000,0.000,0.000,0.000,0.000],
+          ['Models','<a href="._Models.nc" download>[-]</a>', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,0.000,0.000,0.000,0.000,0.000,0.000,0.000],
+        ]);
+        var view  = new google.visualization.DataView(data);
+        var rid   = document.getElementById("MeanStateRegion").selectedIndex
+        view.setColumns([0,1,7*rid+2, 7*rid+3, 7*rid+4, 7*rid+5, 7*rid+6, 7*rid+7, 7*rid+8]);
+        var table = new google.visualization.Table(document.getElementById('MeanState_table'));
+        table.draw(view, {showRowNumber: false,allowHtml: true});
+        function clickRow() {
+          var header = "CNAME / RNAME / MNAME";
+          var CNAME  = ".";
+          header     = header.replace("CNAME",CNAME);
+          var rid    = document.getElementById("MeanStateRegion").selectedIndex;
+          var RNAME  = document.getElementById("MeanStateRegion").options[rid].value;
+          header     = header.replace("RNAME",RNAME);
+          var select = table.getSelection()
+          row = select[0].row;
+          if (row == 0) {
+            table.setSelection([{'row': 1}]);
+            clickRow();
+            return;
+          }
+          var MNAME  = data.getValue(row,0);
+          header     = header.replace("MNAME",MNAME);
+          $("#MeanStateHead").text(header);
+          document.getElementById('(Time Series)Legend').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_legend.png'
+          document.getElementById('(Time Series)Hourly').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_hourly.png'
+          document.getElementById('(Time Series)Daily').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_daily.png'
+          document.getElementById('(Time Series)Monthly').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_monthly.png'
+          document.getElementById('(Time Series)Seasonly').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_seasonly.png'
+          document.getElementById('(Time Series)Taylor').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_taylorgram.png'
+          document.getElementById('(Time Series)Yearly').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_yearly.png'
+          document.getElementById('(Time Series)Season 1').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_s1.png'
+          document.getElementById('(Time Series)Season 2').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_s2.png'
+          document.getElementById('(Time Series)Season 3').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_s3.png'
+          document.getElementById('(Time Series)Season 4').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_s4.png'
+          document.getElementById('(Time Series)TaylorAnnual').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_taylorgram_annual.png'
+          document.getElementById('(Cycle 1)Time Series').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_dayofyear.png'
+          document.getElementById('(Cycle 2)Time Series').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_monthofyear.png'
+          document.getElementById('(Cycle 3)Time Series').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_seasonofyear.png'
+          document.getElementById('(Cycle 4)Time Series').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_taylorgram_cycles.png'
+          document.getElementById('Time Series').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_hourofday.png'
+          document.getElementById('Season 1').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_hourofday_s1.png'
+          document.getElementById('Season 2').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_hourofday_s2.png'
+          document.getElementById('Season 3').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_hourofday_s3.png'
+          document.getElementById('Season 4').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_hourofday_s4.png'
+          document.getElementById('Taylor Graph').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_taylorgram_hourofday.png'
+          document.getElementById('(PDF & CDF)PDF & CDF').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_PDFCDF.png'
+          document.getElementById('(Wavelet)Wavelet Obs').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_wavelet.png'
+          document.getElementById('(Wavelet)Wavelet Mod0').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_wavelet_Mod0.png'
+          document.getElementById('(Time Series)Legend2').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_legend.png'
+          document.getElementById('(Response)Response').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response.png'
+          document.getElementById('(Response)Response_error').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response_error.png'
+          document.getElementById('(Response)Response(DJF)').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response_s1.png'
+          document.getElementById('(Response)Response(DJF)1').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response_error_s1.png'
+          document.getElementById('(Response)Response(MAM)').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response_s2.png'
+          document.getElementById('(Response)Response(MAM)2').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response_error_s2.png'
+          document.getElementById('(Response)Response(JJA)').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response_s3.png'
+          document.getElementById('(Response)Response(JJA)2').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response_error_s3.png'
+          document.getElementById('(Response)Response(SON)').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response_s4.png'
+          document.getElementById('(Response)Response(SON)2').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response_error_s4.png'
+          document.getElementById('(Response)Response 4 Variable').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response4.png'
+          document.getElementById('(Response)Response 4 Variable(DJF)').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response4_s1.png'
+          document.getElementById('(Response)Response 4 Variable(MAM)').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response4_s2.png'
+          document.getElementById('(Response)Response 4 Variable(JJA)').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response4_s3.png'
+          document.getElementById('(Response)Response 4 Variable(SON)').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_response4_s4.png'
+          document.getElementById('(Correlations)Correlations').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_corr4.png'
+          document.getElementById('(Correlations)Correlations_box').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_correlation_box.png'
+        }
+        google.visualization.events.addListener(table, 'select', clickRow);
+      table.setSelection([{'row': 0}]);
+      clickRow();
+      }
+    </script>
+    <script type="text/javascript">
+      function AllSelect() {
+        var header = "CNAME / RNAME";
+        var CNAME  = ".";
+        header     = header.replace("CNAME",CNAME);
+        var rid    = document.getElementById("AllModelsRegion").selectedIndex;
+        var RNAME  = document.getElementById("AllModelsRegion").options[rid].value;
+        var pid    = document.getElementById("AllModelsPlot").selectedIndex;
+        var PNAME  = document.getElementById("AllModelsPlot").options[pid].value;
+        header     = header.replace("RNAME",RNAME);
+        $("#AllModelsHead").text(header);
+        if(PNAME == "(Time Series)Legend" || PNAME == "(Time Series)Hourly" || PNAME == "(Time Series)Daily" || PNAME == "(Time Series)Monthly" || PNAME == "(Time Series)Seasonly" || PNAME == "(Time Series)Taylor" || PNAME == "(Time Series)Yearly" || PNAME == "(Time Series)Season 1" || PNAME == "(Time Series)Season 2" || PNAME == "(Time Series)Season 3" || PNAME == "(Time Series)Season 4" || PNAME == "(Time Series)TaylorAnnual" || PNAME == "(Cycle 1)Time Series" || PNAME == "(Cycle 2)Time Series" || PNAME == "(Cycle 3)Time Series" || PNAME == "(Cycle 4)Time Series" || PNAME == "Time Series" || PNAME == "Season 1" || PNAME == "Season 2" || PNAME == "Season 3" || PNAME == "Season 4" || PNAME == "Taylor Graph" || PNAME == "(PDF & CDF)PDF & CDF" || PNAME == "(Wavelet)Wavelet Obs" || PNAME == "(Wavelet)Wavelet Mod0" || PNAME == "(Time Series)Legend2" || PNAME == "(Response)Response" || PNAME == "(Response)Response_error" || PNAME == "(Response)Response(DJF)" || PNAME == "(Response)Response(DJF)1" || PNAME == "(Response)Response(MAM)" || PNAME == "(Response)Response(MAM)2" || PNAME == "(Response)Response(JJA)" || PNAME == "(Response)Response(JJA)2" || PNAME == "(Response)Response(SON)" || PNAME == "(Response)Response(SON)2" || PNAME == "(Response)Response 4 Variable" || PNAME == "(Response)Response 4 Variable(DJF)" || PNAME == "(Response)Response 4 Variable(MAM)" || PNAME == "(Response)Response 4 Variable(JJA)" || PNAME == "(Response)Response 4 Variable(SON)" || PNAME == "(Correlations)Correlations" || PNAME == "(Correlations)Correlations_box"){
+          document.getElementById("Benchmark_div").style.display = 'none'
+        }else{
+          document.getElementById("Benchmark_div").style.display = 'block'
+          document.getElementById('Benchmark').src = 'Benchmark_' + RNAME + '_' + PNAME + '.png'
+        }
+        document.getElementById('legend').src = 'legend_' + PNAME + '.png'
+        document.getElementById('Benchmark').src = 'Benchmark_' + RNAME + '_' + PNAME + '.png'
+        document.getElementById('Model1').src = 'Model1_' + RNAME + '_' + PNAME + '.png'
+        document.getElementById('Model2').src = 'Model2_' + RNAME + '_' + PNAME + '.png'
+        document.getElementById('Models').src = 'Models_' + RNAME + '_' + PNAME + '.png'
+      }
+    </script>
+    
+    <script>
+      $(document).on('pageshow', '[data-role="page"]', function(){ 
+        AllSelect()
+      });
+    </script>
+    <style type="text/css">
+    
+    .thumbnail:hover {
+    position:relative;
+    width:1200px;
+    height:auto;
+    display:block;
+    z-index:999;
+    margin : auto;
+}
+
+      .outer {
+             width: 40px;
+          position: relative;
+           display: inline-block;
+            margin: 0 15px;
+      }
+      .benchmark {
+          position: relative;
+           display: inline-block;
+            margin: 0 15px;
+      }
+      .inner {
+         font-size: 20px;
+       font-weight: bold;
+          position: absolute;
+               top: 50%;
+              left: 50%;
+      }
+            .second {
+         font-size: 20px;
+       font-weight: bold;
+          position: relative;
+              left: 40px;
+      }
+      .rotate {
+           -moz-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+        -webkit-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+                transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+      }
+    </style>
+  </head>
+  <body>
+       <div data-role="page" id="MeanState">
+      <div data-role="header" data-position="fixed" data-tap-toggle="false">
+        <h1 id="MeanStateHead">Mean State</h1>
+        <div data-role="navbar">
+	  <ul>
+            <li><a href='#MeanState' class=ui-btn-active ui-state-persist>Mean State</a></li>
+            <li><a href='#AllModels'>All Models</a></li>
+            <li><a href='#DataInformation'>Data Information</a></li>
+	  </ul>
+	</div>
+      </div>
+      <select id="MeanStateRegion" onchange="MeanStateTable()">
+        <option value='0'>0</option>
+        <option value='1'>1</option>
+        <option value='2'>2</option>
+        <option value='global' selected="selected">Globe</option>
+      </select>
+      <div id="MeanState_table" align="center"></div>
+        <div data-role="collapsible" data-collapsed="false"><h1>Time series</h1>
+        <div class="outer" id="(Time Series)Legend_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Legend" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Time Series)Hourly_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Hourly" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Time Series)Daily_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Daily" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Time Series)Monthly_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Monthly" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Time Series)Seasonly_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Seasonly" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Time Series)Taylor_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Taylor" alt="Data not available"></img></div>
+        </div><br>
+        </div>
+        <div data-role="collapsible" data-collapsed="false"><h1>Time series(Annually)</h1>
+        <div class="outer" id="(Time Series)Yearly_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Yearly" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Time Series)Season 1_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Season 1" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Time Series)Season 2_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Season 2" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Time Series)Season 3_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Season 3" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Time Series)Season 4_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Season 4" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Time Series)TaylorAnnual_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)TaylorAnnual" alt="Data not available"></img></div>
+        </div><br>
+        </div>
+        <div data-role="collapsible" data-collapsed="false"><h1>Cycles mean</h1>
+        <div class="outer" id="(Cycle 1)Time Series_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Cycle 1)Time Series" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Cycle 2)Time Series_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Cycle 2)Time Series" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Cycle 3)Time Series_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Cycle 3)Time Series" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Cycle 4)Time Series_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Cycle 4)Time Series" alt="Data not available"></img></div>
+        </div><br>
+        </div>
+        <div data-role="collapsible" data-collapsed="false"><h1>Cycles mean(seasonly)</h1>
+        <div class="outer" id="Time Series_div">
+              <div class="second"><img class = "thumbnail" src="" id="Time Series" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="Season 1_div">
+              <div class="second"><img class = "thumbnail" src="" id="Season 1" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="Season 2_div">
+              <div class="second"><img class = "thumbnail" src="" id="Season 2" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="Season 3_div">
+              <div class="second"><img class = "thumbnail" src="" id="Season 3" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="Season 4_div">
+              <div class="second"><img class = "thumbnail" src="" id="Season 4" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="Taylor Graph_div">
+              <div class="second"><img class = "thumbnail" src="" id="Taylor Graph" alt="Data not available"></img></div>
+        </div><br>
+        </div>
+        <div data-role="collapsible" data-collapsed="false"><h1>PDF CDF</h1>
+        <div class="outer" id="(PDF & CDF)PDF & CDF_div">
+              <div class="second"><img class = "thumbnail" src="" id="(PDF & CDF)PDF & CDF" alt="Data not available"></img></div>
+        </div><br>
+        </div>
+        <div data-role="collapsible" data-collapsed="false"><h1>Frequency</h1>
+        <div class="outer" id="(Wavelet)Wavelet Obs_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Wavelet)Wavelet Obs" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Wavelet)Wavelet Mod0_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Wavelet)Wavelet Mod0" alt="Data not available"></img></div>
+        </div><br>
+        </div>
+        <div data-role="collapsible" data-collapsed="false"><h1>Response two variables</h1>
+        <div class="outer" id="(Time Series)Legend2_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Legend2" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response_error_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response_error" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response(DJF)_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(DJF)" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response(DJF)1_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(DJF)1" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response(MAM)_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(MAM)" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response(MAM)2_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(MAM)2" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response(JJA)_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(JJA)" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response(JJA)2_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(JJA)2" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response(SON)_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(SON)" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response(SON)2_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(SON)2" alt="Data not available"></img></div>
+        </div><br>
+        </div>
+        <div data-role="collapsible" data-collapsed="false"><h1>Response four variables</h1>
+        <div class="outer" id="(Response)Response 4 Variable_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response 4 Variable" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response 4 Variable(DJF)_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response 4 Variable(DJF)" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response 4 Variable(MAM)_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response 4 Variable(MAM)" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response 4 Variable(JJA)_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response 4 Variable(JJA)" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Response)Response 4 Variable(SON)_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Response)Response 4 Variable(SON)" alt="Data not available"></img></div>
+        </div><br>
+        </div>
+        <div data-role="collapsible" data-collapsed="false"><h1>Correlations</h1>
+        <div class="outer" id="(Correlations)Correlations_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Correlations)Correlations" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="(Correlations)Correlations_box_div">
+              <div class="second"><img class = "thumbnail" src="" id="(Correlations)Correlations_box" alt="Data not available"></img></div>
+        </div><br>
+        </div>
+    </div>
+    <div data-role="page" id="AllModels">
+      <div data-role="header" data-position="fixed" data-tap-toggle="false">
+        <h1 id="AllModelsHead">All Models</h1>
+        <div data-role="navbar">
+	  <ul>
+            <li><a href='#MeanState'>Mean State</a></li>
+            <li><a href='#AllModels' class=ui-btn-active ui-state-persist>All Models</a></li>
+            <li><a href='#DataInformation'>Data Information</a></li>
+	  </ul>
+	</div>
+      </div>
+      <select id="AllModelsRegion" onchange="AllSelect()">
+        <option value='0'>0</option>
+        <option value='1'>1</option>
+        <option value='2'>2</option>
+        <option value='global' selected="selected">Globe</option>
+      </select>
+      <select id="AllModelsPlot" onchange="AllSelect()">
+        <option value='(Time Series)Legend'></option>
+        <option value='(Time Series)Hourly'></option>
+        <option value='(Time Series)Daily'></option>
+        <option value='(Time Series)Monthly'></option>
+        <option value='(Time Series)Seasonly'></option>
+        <option value='(Time Series)Taylor'></option>
+        <option value='(Time Series)Yearly'></option>
+        <option value='(Time Series)Season 1'></option>
+        <option value='(Time Series)Season 2'></option>
+        <option value='(Time Series)Season 3'></option>
+        <option value='(Time Series)Season 4'></option>
+        <option value='(Time Series)TaylorAnnual'></option>
+        <option value='(Cycle 1)Time Series'></option>
+        <option value='(Cycle 2)Time Series'></option>
+        <option value='(Cycle 3)Time Series'></option>
+        <option value='(Cycle 4)Time Series'></option>
+        <option value='Time Series'></option>
+        <option value='Season 1'></option>
+        <option value='Season 2'></option>
+        <option value='Season 3'></option>
+        <option value='Season 4'></option>
+        <option value='Taylor Graph'></option>
+        <option value='(PDF & CDF)PDF & CDF'></option>
+        <option value='(Wavelet)Wavelet Obs'></option>
+        <option value='(Wavelet)Wavelet Mod0'></option>
+        <option value='(Time Series)Legend2'></option>
+        <option value='(Response)Response'></option>
+        <option value='(Response)Response_error'></option>
+        <option value='(Response)Response(DJF)'></option>
+        <option value='(Response)Response(DJF)1'></option>
+        <option value='(Response)Response(MAM)'></option>
+        <option value='(Response)Response(MAM)2'></option>
+        <option value='(Response)Response(JJA)'></option>
+        <option value='(Response)Response(JJA)2'></option>
+        <option value='(Response)Response(SON)'></option>
+        <option value='(Response)Response(SON)2'></option>
+        <option value='(Response)Response 4 Variable'></option>
+        <option value='(Response)Response 4 Variable(DJF)'></option>
+        <option value='(Response)Response 4 Variable(MAM)'></option>
+        <option value='(Response)Response 4 Variable(JJA)'></option>
+        <option value='(Response)Response 4 Variable(SON)'></option>
+        <option value='(Correlations)Correlations'></option>
+        <option value='(Correlations)Correlations_box'></option>
+      </select>
+        <div class="outer" id="Benchmark_div">
+              <div class="inner rotate">Benchmark</div>
+              <div class="second"><img class = "thumbnail" src="" id="Benchmark" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="Model1_div">
+              <div class="inner rotate">Model1</div>
+              <div class="second"><img class = "thumbnail" src="" id="Model1" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="Model2_div">
+              <div class="inner rotate">Model2</div>
+              <div class="second"><img class = "thumbnail" src="" id="Model2" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="Models_div">
+              <div class="inner rotate">Models</div>
+              <div class="second"><img class = "thumbnail" src="" id="Models" alt="Data not available"></img></div>
+        </div><br>
+        <div class="outer" id="legend_div">
+          <div class="inner rotate"> </div>
+          <div class="second"><img src="" id="legend" alt="Data not available"></img></div>
+        </div><br>
+    </div>
+       <div data-role="page" id="DataInformation">
+      <div data-role="header" data-position="fixed" data-tap-toggle="false">
+        <h1 id="DataInformationHead">Data Information</h1>
+        <div data-role="navbar">
+	  <ul>
+            <li><a href='#MeanState'>Mean State</a></li>
+            <li><a href='#AllModels'>All Models</a></li>
+            <li><a href='#DataInformation' class=ui-btn-active ui-state-persist>Data Information</a></li>
+	  </ul>
+	</div>
+      </div>
+      
+<p><b>&nbsp;&nbsp;creation_date:&nbsp;</b>Thu May  8 23:26:58 PDT 2014</p>
+<p><b>&nbsp;&nbsp;Conventions:&nbsp;</b>Please contact Prof. James Randerson (Email: jranders@uci.edu) or Dr. Mingquan Mu (mmu@uci.edu) for any question</p>
+<p><b>&nbsp;&nbsp;source_file:&nbsp;</b>This product is generated from monthly 1 degree CERES EBAF Radiation observations</p>
+<p><b>&nbsp;&nbsp;title:&nbsp;</b>derived CERES EBAF Radiation</p>
+
+    </div>
+  </body>
+</html>

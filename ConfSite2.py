@@ -27,12 +27,7 @@ import seaborn as sns; sns.set()
 import os, glob, math, calendar, PIL
 from PIL import Image
 
-
-
-
-
 # self-package
-
 from taylorDiagram import plot_Taylor_graph_time_basic
 from taylorDiagram import plot_Taylor_graph_season_cycle
 from taylorDiagram import plot_Taylor_graph
@@ -47,11 +42,12 @@ from hht import plot_frequency
 
 
 
-
+# List of colors for all different models, which can be set separately
 col = ['plum', 'darkorchid', 'blue', 'navy', 'deepskyblue', 'darkcyan', 'seagreen', 'darkgreen',
        'olivedrab', 'gold', 'tan', 'red', 'palevioletred', 'm', 'plum']
 
 def pil_grid(images, max_horiz=np.iinfo(int).max):
+    '''This is a function used to list all the pictures'''
     n_images = len(images)
     n_horiz = min(n_images, max_horiz)
     h_sizes, v_sizes = [0] * n_horiz, [0] * (n_images // n_horiz)
@@ -1282,8 +1278,9 @@ class ConfSite(Confrontation):
 
     def confront(self, m):
 
-        output_path = self.output_path
-        # output_path = '/Users/lli51/Documents/ILAMB_sample/test_output/'
+        # output_path = self.output_path
+        output_path = '/Users/lli51/Documents/ILAMB_sample/test_output/'
+        # self.output = output_path
         # get the HTML page
         page = [page for page in self.layout.pages if "MeanState" in page.name][0]
 
@@ -1334,6 +1331,7 @@ class ConfSite(Confrontation):
         variable_list = [obs1.name, obs2.name, obs3.name, obs4.name]
 
         mmname = ["Models", "Model1", "Model2"]
+        self.mmname = mmname
         for modnumber, mname in enumerate(mmname):
             if mname == "Models":
                 mod1_1 = mod1_1_1
@@ -1760,8 +1758,20 @@ class ConfSite(Confrontation):
 
 
 
+    def generateHtml(self):
+        """Generate the HTML for the results of this confrontation.
 
-        for modname in mmname:#
+        This routine opens all netCDF files and builds a table of
+        metrics. Then it passes the results to the HTML generator and
+        saves the result in the output directory. This only occurs on
+        the confrontation flagged as master.
+
+        """
+        # only the master processor needs to do this
+        output_path = self.output_path #'/Users/lli51/Documents/ILAMB_sample/'
+        # output_path ='/Users/lli51/Documents/ILAMB_sample/'
+
+        for modname in self.mmname:#
             # output_path = '/Users/lli51/Documents/ILAMB_sample/'
             results = Dataset(os.path.join(output_path, "%s_%s.nc" % (self.name, modname)), mode="w")
             results.setncatts({"name": modname, "color": m.color})
@@ -1787,21 +1797,6 @@ class ConfSite(Confrontation):
                 Variable(name=("Correlation"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
                 results.close()
 
-
-
-
-
-    def generateHtml(self):
-        """Generate the HTML for the results of this confrontation.
-
-        This routine opens all netCDF files and builds a table of
-        metrics. Then it passes the results to the HTML generator and
-        saves the result in the output directory. This only occurs on
-        the confrontation flagged as master.
-
-        """
-        # only the master processor needs to do this
-        output_path = self.output_path #'/Users/lli51/Documents/ILAMB_sample/'
 
         if not self.master: return
 
