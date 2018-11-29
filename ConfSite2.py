@@ -199,13 +199,20 @@ def correlation_matrix(datas):
 
     return corr, mask
 
-def Plot_TimeSeries(obs, mmod, site_id, col_num=0, site_name = None):
+def Plot_TimeSeries(obs, mmod, site_id, col_num=0, site_name = None, score = None):
 
     print('Process on TimeSeries ' + 'No.' + str(site_id) + '!')
-    # print(obs.lat[site_id], obs.lon[site_id])
     x = np.ma.masked_invalid(obs.data[:, site_id])
     t = obs.time
     xx = x.compressed()
+    if score is not None:
+        score['h_mean'][site_id][-1] = xx.mean()
+        # score['h_anom'][site_id][-1] = xx.anom()
+        # score['h_median'][site_id][-1] = xx.median()
+        score['h_std'][site_id][-1] = xx.std()
+        score['h_var'][site_id][-1] = xx.var()
+        score['Coffcoef'][site_id][-1] = np.corrcoef(xx)
+
     fig0 = plt.figure(figsize=(7, 4))
     # ax0 = fig0.add_subplot(1, 1, 1)
     ax0 = plt.gca()
@@ -216,15 +223,28 @@ def Plot_TimeSeries(obs, mmod, site_id, col_num=0, site_name = None):
     ax0.set_ylabel(obs.name+'('+obs.unit+')', fontsize=20)
     change_x_tick(x, t, site_id, ax0)
 
+    zz,z = 0,0
     mods = []
     for i, mod in enumerate(mmod):
         y = np.ma.masked_invalid(mod.data[:, site_id])
+        zz+=y
+        z+=y
         yy = y[~x.mask]
         mods.append(yy)
         if col_num < 0:
             ax0.plot(t[~x.mask], yy, '-', label="Model " + str(i+1), color=col[i])
         else:
             ax0.plot(t[~x.mask], yy, '-', label="Model " + str(col_num+1), color=col[col_num])
+
+    zz /=float(len(mmod))
+    z/=float(len(mmod))
+    if score is not None:
+        score['h_mean'][site_id][col_num+1] = zz.mean()
+        # score['h_anom'][site_id][col_num+1] = zz.anom()
+        # score['h_median'][site_id][col_num+1] = zz.median()
+        score['h_std'][site_id][col_num+1] = zz.std()
+        score['h_var'][site_id][col_num+1] = zz.var()
+        score['Coffcoef'][site_id][col_num+1]=np.corrcoef(x,z)[0][1]
 
     # fig0, samples0 = plot_Taylor_graph(xx, mods, fig0, 212, bbox_to_anchor=(1, 0.45), datamask=None)
     figLegend = plt.figure(figsize=(3, 3))
@@ -233,7 +253,7 @@ def Plot_TimeSeries(obs, mmod, site_id, col_num=0, site_name = None):
     fig0.tight_layout(rect=[0, 0.01, 1, 0.97])
     return fig0, figLegend
 
-def Plot_TimeSeries_cycle(obs, mmod, site_id, cycle_length, col_num=0, site_name = None):
+def Plot_TimeSeries_cycle(obs, mmod, site_id, cycle_length, col_num=0, site_name = None, score = None):
 
     if 'h' in obs.unit:
         if cycle_length ==1.0:
@@ -303,7 +323,7 @@ def Plot_TimeSeries_cycle(obs, mmod, site_id, cycle_length, col_num=0, site_name
     fig0.tight_layout(rect=[0, 0.01, 1, 0.97])
     return fig0
 
-def Plot_TimeSeries_cycle_season(obs, mmod, site_id, cycle_length, col_num=0, s=1, site_name = None):
+def Plot_TimeSeries_cycle_season(obs, mmod, site_id, cycle_length, col_num=0, s=1, site_name = None, score = None):
     if 'h' in obs.unit:
         if cycle_length ==1.0:
             obs0 = Variable(name=obs.name, unit=obs.unit.replace("h", "d"), time=obs.time, data=obs.data *24)
@@ -361,7 +381,7 @@ def Plot_TimeSeries_cycle_season(obs, mmod, site_id, cycle_length, col_num=0, s=
     fig0.tight_layout(rect=[0, 0.01, 1, 0.97])
     return fig0
 
-def Plot_TimeSeries_cycle_reshape(obs, mmod, site_id, cycle_length,xname="Hours of a day", col_num=0, site_name = None):
+def Plot_TimeSeries_cycle_reshape(obs, mmod, site_id, cycle_length,xname="Hours of a day", col_num=0, site_name = None, score = None):
 
     print('Process on Cycle Means Reshape ' + 'No.' + str(site_id) + '!')
     odata, ot, otb = CycleReshape(obs, cycle_length=cycle_length)
@@ -425,7 +445,7 @@ def Plot_TimeSeries_cycle_reshape(obs, mmod, site_id, cycle_length,xname="Hours 
 
     return fig0
 
-def Plot_TimeSeries_cycle_reshape_season(obs, mmod, site_id, cycle_length, xname="Hours of a day", col_num=0,s=1, site_name = None):
+def Plot_TimeSeries_cycle_reshape_season(obs, mmod, site_id, cycle_length, xname="Hours of a day", col_num=0,s=1, site_name = None, score = None):
 
     print('Process on Cycle Means Reshape ' + 'No.' + str(site_id) + '!')
     odata, ot, otb = CycleReshape(obs, cycle_length=cycle_length)
@@ -477,7 +497,7 @@ def Plot_TimeSeries_cycle_reshape_season(obs, mmod, site_id, cycle_length, xname
 
     return fig0
 
-def Plot_TimeSeries_TaylorGram(obs, mmod, site_id, col_num=0, site_name = None):
+def Plot_TimeSeries_TaylorGram(obs, mmod, site_id, col_num=0, site_name = None, score = None):
     print('Process on TimeSeries Taylor Grams ' + 'No.' + str(site_id) + '!')
     odata1, ot, otb = CycleReshape(obs, cycle_length=1)
     x1 = np.ma.masked_invalid(odata1[:, :, site_id])
@@ -513,7 +533,7 @@ def Plot_TimeSeries_TaylorGram(obs, mmod, site_id, col_num=0, site_name = None):
         fig0, samples1, samples2, samples3 = plot_Taylor_graph_time_basic(data1, data2, data3, models1, models2, models3, fig0, rect=111, ref_times=10, bbox_to_anchor=(0.9, 0.9), modnumber=col_num+1)
     return fig0
 
-def Plot_TimeSeries_TaylorGram_annual(obs, mmod, site_id, col_num=0, site_name = None):
+def Plot_TimeSeries_TaylorGram_annual(obs, mmod, site_id, col_num=0, site_name = None, score = None):
     print('Process on TimeSeries Taylor Grams ' + 'No.' + str(site_id) + '!')
     obs1, mmod1 = GetSeasonMask(obs, mmod, site_id, 1)
     odata1, ot, otb = CycleReshape(obs1, cycle_length=365)
@@ -583,7 +603,7 @@ def Plot_TimeSeries_TaylorGram_annual(obs, mmod, site_id, col_num=0, site_name =
 
     return fig0
 
-def Plot_TimeSeries_TaylorGram_hourofday(obs, mmod, site_id, col_num=0, site_name = None):
+def Plot_TimeSeries_TaylorGram_hourofday(obs, mmod, site_id, col_num=0, site_name = None, score = None):
     print('Process on TimeSeries Taylor Grams ' + 'No.' + str(site_id) + '!')
     obs1, mmod1 = GetSeasonMask(obs, mmod, site_id, 1)
     odata1, ot, otb = CycleReshape(obs1, cycle_length=1)
@@ -652,7 +672,7 @@ def Plot_TimeSeries_TaylorGram_hourofday(obs, mmod, site_id, col_num=0, site_nam
                                                                                              modnumber=col_num + 1)
     return fig0
 
-def Plot_TimeSeries_TaylorGram_cycles(obs, mmod, site_id, col_num=0, site_name = None):
+def Plot_TimeSeries_TaylorGram_cycles(obs, mmod, site_id, col_num=0, site_name = None, score = None):
     print('Process on TimeSeries Taylor Grams ' + 'No.' + str(site_id) + '!')
     odata01, ot, otb = CycleReshape(obs, cycle_length=1.)
     obs1_1 = Variable(name=obs.name,unit=obs.unit, time=ot,data=np.mean(odata01, axis=1))
@@ -708,7 +728,7 @@ def Plot_TimeSeries_TaylorGram_cycles(obs, mmod, site_id, col_num=0, site_name =
 
     return fig0
 
-def Plot_PDF_CDF(obs,mmod,site_id, col_num=0, site_name = None):
+def Plot_PDF_CDF(obs,mmod,site_id, col_num=0, site_name = None, score = None):
     print('Process on PDF&CDF ' + 'No.' + str(site_id) + '!')
     x = np.ma.masked_invalid(obs.data[:, site_id])
     t = obs.time
@@ -747,7 +767,7 @@ def Plot_PDF_CDF(obs,mmod,site_id, col_num=0, site_name = None):
 
     return fig0
 
-def Plot_PDF_CDF_one_mod_seasonal(obs,mmod,site_id, col_num=0, site_name = None):
+def Plot_PDF_CDF_one_mod_seasonal(obs,mmod,site_id, col_num=0, site_name = None, score = None):
     print('Process on PDF&CDF ' + 'No.' + str(site_id) + '!')
     x = np.ma.masked_invalid(obs.data[:, site_id])
     t = obs.time
@@ -778,7 +798,7 @@ def Plot_PDF_CDF_one_mod_seasonal(obs,mmod,site_id, col_num=0, site_name = None)
 
     return fig0
 
-def Plot_Wavelet(obs, obst, site_id, unit, model_name='Obs', col_num=0, site_name = None):
+def Plot_Wavelet(obs, obst, site_id, unit, model_name='Obs', col_num=0, site_name = None, score = None):
     print('Process on Wavelet ' + 'No.' + str(site_id) + '!')
     data = np.ma.masked_invalid(obs.data[:, site_id])
     time_data = obst[~data.mask]
@@ -786,9 +806,21 @@ def Plot_Wavelet(obs, obst, site_id, unit, model_name='Obs', col_num=0, site_nam
     result = waipy.cwt(data.compressed(), 1, 1, 0.125, 2, 4 / 0.125, 0.72, 6, mother='Morlet', name= model_name)
     ax1, ax2, ax3, ax5 = waipy.wavelet_plot(model_name, time_data, data.compressed(), 0.03125, result, fig3, unit=unit)
     change_x_tick(data, obst, site_id, ax2)
+
+    if score is not None:
+        globalpower = sorted(result['global_ws'])
+        ind1 = np.where(result['global_ws'] == globalpower[-1])
+        ind2 = np.where(result['global_ws'] == globalpower[-2])
+        # print(model_name, result['period'][ind1],result['period'][ind2])
+        if model_name == 'obs':
+            score['FrequencyMax'][site_id][-1]=result['global_ws'][ind1]
+            score['FrequencyTMax'][site_id][-1] =result['period'][ind1]
+        else:
+            score['FrequencyMax'][site_id][col_num] =result['global_ws'][ind1]
+            score['FrequencyTMax'][site_id][col_num] =result['period'][ind1]
     return fig3
 
-def Plot_IMF_one_mod(obs, ot, mmod, mt, site_id, col_num=0, site_name = None):
+def Plot_IMF_one_mod(obs, ot, mmod, mt, site_id, col_num=0, site_name = None, score = None):
     print('Process on Decomposer_IMF_' + str(site_id) + '!')
     data0 = np.ma.masked_invalid(obs.data[:, site_id])
     data0 = np.ma.masked_where(data0==0.00, data0)
@@ -882,7 +914,7 @@ def Plot_IMF_one_mod(obs, ot, mmod, mt, site_id, col_num=0, site_name = None):
     return fig0, fig1, fig2, fig3
 
 
-def Plot_response2(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None, s=None):
+def Plot_response2(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None, s=None, score = None):
     print('Process on Response ' + 'No.' + str(site_id) + '!')
     x1 = np.ma.masked_invalid(obs1.data[:, site_id])
     x2 = np.ma.masked_invalid(obs2.data[:, site_id])
@@ -915,7 +947,7 @@ def Plot_response2(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None,
         plt.suptitle(site_name, y=0.91)
     return fig0
 
-def Plot_response2_error(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None, s=None):
+def Plot_response2_error(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None, s=None, score = None):
     print('Process on Response ' + 'No.' + str(site_id) + '!')
     x1= np.ma.masked_invalid(obs1.data[:, site_id])
     x2 = np.ma.masked_invalid(obs2.data[:, site_id])
@@ -947,7 +979,7 @@ def Plot_response2_error(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name =
 
     return fig0
 
-def Plot_response4(obs1, mod1, obs2, mod2, obs3, mod3, obs4, mod4, site_id, col_num=0, site_name=None, s=None):
+def Plot_response4(obs1, mod1, obs2, mod2, obs3, mod3, obs4, mod4, site_id, col_num=0, site_name=None, s=None, score = None):
     print('Process on Response4 ' + 'No.' + str(site_id) + '!')
     x1 = np.ma.masked_invalid(obs1.data[:, site_id])
     x1 = np.ma.masked_where(x1 == 0, x1)
@@ -1069,7 +1101,7 @@ def partial_corr(C):
 
     return P_corr[0:C.shape[1] - 1, 0:C.shape[1] - 1]
 
-def plot_4_variable_corr(obs1, mod1_1, obs2, mod2_1, obs3, mod3_1, obs4, mod4_1, site_id, col_num=0, site_name = None):
+def plot_4_variable_corr(obs1, mod1_1, obs2, mod2_1, obs3, mod3_1, obs4, mod4_1, site_id, col_num=0, site_name = None, score = None):
     print('Process on Corr4 ' + 'No.' + str(site_id) + '!')
     x1 = np.ma.masked_invalid(obs1.data[:, site_id])
     x1 = np.ma.masked_where(x1 == 0, x1)
@@ -1130,7 +1162,7 @@ def plot_4_variable_corr(obs1, mod1_1, obs2, mod2_1, obs3, mod3_1, obs4, mod4_1,
     ax0.zaxis.labelpad = 5
     return fig0
 
-def plot_variable_matrix_trend_and_detrend(data, dtrend_data, variable_list, col_num=0, site_name = None):
+def plot_variable_matrix_trend_and_detrend(data, dtrend_data, variable_list, col_num=0, site_name = None, score = None):
     fig, axes = plt.subplots(len(variable_list), len(variable_list), sharex=True, sharey=True,
                              figsize=(6, 6))
     fig.subplots_adjust(wspace=0.03, hspace=0.03)
@@ -1200,25 +1232,36 @@ class ConfSite(Confrontation):
                        variable_name=self.variable,
                        alternate_vars=self.alternate_vars)
 
+        # Set the number of sites being considered and the number of models
         self.sitenumber = 3  # len(regions)
+        # self.mmname = ["Model1", "Model2", "Models"]
+        self.mmname = ["Models", "Model1", "Model2"]
+        self.new_metrics = ['h_mean','h_std','h_var','FrequencyMax','FrequencyTMax','Coffcoef']
+        # self.nam_metrics = ['Mean','Anom','Median','Std','Varance','Frequency','Correlation']
+        self.uni_metrics = {'h_mean':obs.unit,'h_anom': obs.unit, 'h_median': obs.unit, 'h_var': obs.unit+'^2','FrequencyMax': 'Months','FrequencyTMax': 'Months','Coffcoef': '0-1', 'h_std': '0-1'}
+
+        self.score = {}
+        for metric in self.new_metrics:
+            self.score[metric] = np.full([self.sitenumber, len(self.mmname)+1], np.nan)
 
         self.lats = obs.lat[:self.sitenumber]
         self.lons = obs.lon[:self.sitenumber]
 
         r = Regions()
+        ###################
         # Setup the name of the sites and regions functions
         regions = []
         for i in range(len(self.lats)):
+            # Define the site name in the webpage
             # r.addRegionLatLonBounds(("lat" + str(self.lats[i])[:5] + "lon" + str(self.lons[i])[:5]),
             #                         "lat" + str(self.lats[i])[:5] + "lon" + str(self.lons[i])[:5],
             #                         (self.lats[i] - 0.5, self.lats[i] + 0.5), (self.lons[i] - 0.5, self.lons[i] + 0.5))
             # regions.append("lat" + str(self.lats[i])[:5] + "lon" + str(self.lons[i])[:5])
             r.addRegionLatLonBounds(str(i), str(i), (self.lats[i] - 0.01, self.lats[i] + 0.01), (self.lons[i] - 0.01, self.lons[i] + 0.01))
-            # print((self.lats[i] - 0.01, self.lats[i] + 0.01), (self.lons[i] - 0.01, self.lons[i] + 0.01))
             regions.append(str(i))
 
 
-        # after all sites, here we define the organize the regions
+        # Define the organized regions, added for future districts
 
         self.lowerlatbound = []
         self.upperlatbound = []
@@ -1231,6 +1274,8 @@ class ConfSite(Confrontation):
         self.upperlatbound.append(80)
         self.lowerlonbound.append(-180)
         self.upperlonbound.append(180)
+        #######################
+
 
         self.regions = regions
 
@@ -1241,13 +1286,11 @@ class ConfSite(Confrontation):
         pages[-1].setHeader("CNAME / RNAME / MNAME")
         pages[-1].setSections(["Time series","Time series(Annually)", "Cycles mean", "Cycles mean(seasonly)", "PDF CDF", "Frequency", "Response two variables", "Response four variables", "Correlations"])
         pages[-1].setRegions(self.regions) #self.regions
-        pages.append(post.HtmlAllModelsPage("AllModels","All Models"))
-        pages[-1].setHeader("CNAME / RNAME")
+        # pages.append(post.HtmlAllModelsPage("AllModels","All Models"))
+        # pages[-1].setHeader("CNAME / RNAME")
         # pages[-1].setSections(["Time series", "Cycles mean", "Frequency", "Response"])
-        pages[-1].setSections([])
-        pages[-1].setRegions(self.regions)
-
-
+        # pages[-1].setSections([])
+        # pages[-1].setRegions(self.regions)
         pages.append(post.HtmlPage("DataInformation","Data Information"))
         pages[-1].setSections([])
         pages[-1].text = "\n"
@@ -1271,7 +1314,8 @@ class ConfSite(Confrontation):
 
         obs, mod = il.MakeComparable(obs, mod, clip_ref=True)
 
-        obs1 = Variable(name=obs.name,unit=obs.unit,time=obs.time,data=obs.data[:,0,0:self.sitenumber])
+        # capture the several sites for short test
+        obs1 = Variable(name=obs.name,unit=obs.unit,time=obs.time,data=obs.data[:,0, 0:self.sitenumber])
         mod1 = Variable(name=mod.name, unit=mod.unit, time=mod.time, data=mod.data[:, 0, 0:self.sitenumber])
 
         return obs1, mod1
@@ -1279,16 +1323,15 @@ class ConfSite(Confrontation):
     def confront(self, m):
 
         # output_path = self.output_path
-        output_path = '/Users/lli51/Documents/ILAMB_sample/test_output/'
-        # self.output = output_path
+        output_path = '/Users/lli51/Documents/ILAMB_sample/test_output/' #local address
         # get the HTML page
         page = [page for page in self.layout.pages if "MeanState" in page.name][0]
 
-        # Grab the data
+        # Grab the data, replicate the mods..
         obs, mod = self.stageData(m)
 
-        obs1, obs2, obs3,obs4 = obs,obs,obs,obs
-        mod1, mod2, mod3,mod4 = mod,mod,mod,mod
+        obs1,obs2, obs3,obs4 = obs,obs,obs,obs
+        mod1,mod2, mod3,mod4 = mod,mod,mod,mod
 
         mod11,mod12,mod13,mod14 = mod,mod,mod,mod
         mod21,mod22,mod23,mod24 = mod,mod,mod,mod
@@ -1300,9 +1343,8 @@ class ConfSite(Confrontation):
         mod3_1_1 = [mod31, mod32]
         mod4_1_1 = [mod41, mod42]
 
-        lats = obs1.lat
-        lons = obs1.lon
 
+        # change the unit to hourly data, might need to be address for future
         if 's' in obs1.unit:
             obs1 = Variable(name=obs1.name, unit=obs1.unit.replace("s", "h"), time=obs1.time, data=obs1.data * 3600)
             mm = []
@@ -1330,9 +1372,7 @@ class ConfSite(Confrontation):
 
         variable_list = [obs1.name, obs2.name, obs3.name, obs4.name]
 
-        mmname = ["Models", "Model1", "Model2"]
-        self.mmname = mmname
-        for modnumber, mname in enumerate(mmname):
+        for modnumber, mname in enumerate(self.mmname):
             if mname == "Models":
                 mod1_1 = mod1_1_1
                 mod2_1 = mod2_1_1
@@ -1361,31 +1401,31 @@ class ConfSite(Confrontation):
             ## finish correlations' initals
 
             for siteid in range(len(obs.data[0])):
-                # region = self.lbls[siteid]
+
                 region = str(siteid)#"lat" + str(lats[siteid])[:5] + "lon" + str(lons[siteid])[:5]
 
                 ######################### Time series of one model and models with legend and Taylor graph
 
-                fig_TimeSeries, figLegend = Plot_TimeSeries(obs1, mod1_1, siteid, col_num=modnumber-1, site_name=region)
+                fig_TimeSeries, figLegend = Plot_TimeSeries(obs1, mod1_1, siteid, col_num=modnumber-1, site_name=region, score = self.score)
                 fig_TimeSeries.savefig(os.path.join(output_path, "%s_%s_timeseries_hourly.png" % (mname, region)), bbox_inches='tight')
                 figLegend.savefig(os.path.join(output_path, "%s_%s_timeseries_legend.png" % (mname, region)), bbox_inches='tight')
 
-                fig_TimeSeries_hourly = Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 1., col_num=modnumber-1, site_name=region)
-                fig_TimeSeries_hourly.savefig(os.path.join(output_path, "%s_%s_timeseries_daily.png" % (mname, region)), bbox_inches='tight')
+                fig_TimeSeries_daily = Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 1., col_num=modnumber-1, site_name=region, score = self.score)
+                fig_TimeSeries_daily.savefig(os.path.join(output_path, "%s_%s_timeseries_daily.png" % (mname, region)), bbox_inches='tight')
                 #
-                fig_TimeSeries_monthly = Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 30., col_num=modnumber-1, site_name=region)
+                fig_TimeSeries_monthly = Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 30., col_num=modnumber-1, site_name=region, score = self.score)
                 fig_TimeSeries_monthly.savefig(os.path.join(output_path, "%s_%s_timeseries_monthly.png" % (mname, region)),bbox_inches='tight')
                 #
-                fig_TimeSeries_yearly = Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 365., col_num=modnumber-1, site_name=region)
+                fig_TimeSeries_yearly = Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 365., col_num=modnumber-1, site_name=region, score = self.score)
                 fig_TimeSeries_yearly.savefig(os.path.join(output_path, "%s_%s_timeseries_yearly.png" % (mname, region)),bbox_inches='tight')
                 #
-                #
-                fig_TimeSeries_seasonly = Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 90., col_num=modnumber-1, site_name=region)
+        #         #
+                fig_TimeSeries_seasonly = Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 90., col_num=modnumber-1, site_name=region, score = self.score)
                 fig_TimeSeries_seasonly.savefig(os.path.join(output_path, "%s_%s_timeseries_seasonly.png" % (mname, region)),bbox_inches='tight')
 
-
+        #
                 plt.close("all")
-                ############################### Cycle means output
+        #         ############################### Cycle means output
                 fig_TimeSeries_cycle_hourofday = Plot_TimeSeries_cycle_reshape(obs1, mod1_1, siteid, 1., col_num=modnumber-1,site_name=region)
                 fig_TimeSeries_cycle_hourofday.savefig(os.path.join(output_path, "%s_%s_timeseries_hourofday.png" % (mname, region)),bbox_inches='tight')
 
@@ -1417,24 +1457,24 @@ class ConfSite(Confrontation):
                 fig_TimeSeries_cycle_seasonofyear.savefig(os.path.join(output_path, "%s_%s_timeseries_seasonofyear.png" % (mname, region)),bbox_inches='tight')
                 plt.close("all")
                 ############################### PDF and CDF output
-                fig_PDF_CDF = Plot_PDF_CDF(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region)
+                fig_PDF_CDF = Plot_PDF_CDF(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region, score = self.score)
                 fig_PDF_CDF.savefig(os.path.join(output_path, "%s_%s_PDFCDF.png" % (mname, region)),bbox_inches='tight')
                 plt.close("all")
 
                 ############################# Wavelet obs
                 if modnumber <= 0:
                     odata, ot, otb = CycleReshape(obs1, cycle_length=30.) # when it goes to 30 days with hourly data, there are totally 720 samples [292, 720, 34]
-                    fig_Wavelet = Plot_Wavelet(np.mean(odata, axis=1), ot, siteid, obs1.unit, model_name='Obs:'+region, col_num=modnumber-1,site_name=region)
-                    for mmmmname in mmname:
+                    fig_Wavelet = Plot_Wavelet(np.mean(odata, axis=1), ot, siteid, obs1.unit, model_name='Obs:'+region, col_num=modnumber-1,site_name=region, score =self.score)
+                    for mmmmname in self.mmname:
                         fig_Wavelet.savefig(os.path.join(output_path, "%s_%s_wavelet.png" % (mmmmname, region)),bbox_inches='tight')
                     list_im = []
                     for i, mod in enumerate(mod1_1):
                         mdata, mt, mtb = CycleReshape(mod, cycle_length=30.)
                         fig_Wavelet_mod = Plot_Wavelet(np.mean(mdata, axis=1), mt, siteid, obs1.unit,
-                                                       model_name='Mod' + str(i + 1)+':'+region, col_num=modnumber - 1, site_name=region)
+                                                       model_name='Mod' + str(i + 1)+':'+region, col_num=i+1, site_name=region, score = self.score)
                         fig_Wavelet_mod.savefig(
-                            os.path.join(output_path, ("%s_%s_wavelet_Mod0.png") % (mmname[i+1], region)),bbox_inches='tight')
-                        list_im.append((output_path + "%s_%s_wavelet_Mod0.png") % (mmname[i+1], region))
+                            os.path.join(output_path, ("%s_%s_wavelet_Mod0.png") % (self.mmname[i+1], region)),bbox_inches='tight')
+                        list_im.append((output_path + "%s_%s_wavelet_Mod0.png") % (self.mmname[i+1], region))
 
                     imgs = [PIL.Image.open(i) for i in list_im]
                     x_axis_pictures_number = 1
@@ -1443,142 +1483,140 @@ class ConfSite(Confrontation):
                         imgs.append(im)
                     imgs_comb = pil_grid(imgs, x_axis_pictures_number)
                     # imgs_comb = np.vstack((np.asarray(i.resize(min_shape)) for i in imgs))
-                    imgs_comb.save((output_path + "/%s_%s_wavelet_Mod0.png") % (mmname[0], region))
+                    imgs_comb.save((output_path + "/%s_%s_wavelet_Mod0.png") % (self.mmname[0], region))
                 plt.close("all")
-
-                ############################## Response obs
-                fig2_variable = Plot_response2(obs1, mod1_1, obs2, mod2_1, siteid, col_num=modnumber-1,site_name=region)
-                fig2_variable.savefig(os.path.join(output_path, "%s_%s_response.png" % (mname, region)),bbox_inches='tight')
-
-                fig2_variable_error = Plot_response2_error(obs1, mod1_1, obs2, mod2_1, siteid, col_num=modnumber-1, site_name=region)
-                fig2_variable_error.savefig(os.path.join(output_path, "%s_%s_response_error.png" % (mname, region)), bbox_inches='tight')
-
-                fig4_variable = Plot_response4(obs1, mod1_1, obs2, mod2_1, obs3, mod3_1, obs4, mod4_1, siteid,
-                                               col_num=modnumber - 1, site_name=region)
-                fig4_variable.savefig(os.path.join(output_path, "%s_%s_response4.png" % (mname, region)),
-                                      bbox_inches='tight')
-
-                fig_corr = plot_4_variable_corr(obs1, mod1_1, obs2, mod2_1, obs3, mod3_1, obs4, mod4_1, siteid, col_num=modnumber-1,site_name=region)
-                fig_corr.savefig(os.path.join(output_path, "%s_%s_corr4.png" % (mname, region)),bbox_inches='tight')
-                plt.close("all")
-
-                ############################## timeseries_hourofday
-                obs2_s1, mmod2_s1 = GetSeasonMask(obs1, mod1_1, siteid, 1)
-                figannual_s1 = Plot_TimeSeries_cycle_season(obs2_s1, mmod2_s1, 0, 365., col_num=modnumber-1,s=1,site_name=region) # only one output is given
-                figannual_s1.savefig(os.path.join(output_path, "%s_%s_timeseries_s1.png" % (mname, region)), bbox_inches='tight')
-                fighourofday_s1 = Plot_TimeSeries_cycle_reshape_season(obs2_s1, mmod2_s1, 0, 1., col_num=modnumber-1, s=1,site_name=region)
-                fighourofday_s1.savefig(os.path.join(output_path, "%s_%s_timeseries_hourofday_s1.png" % (mname, region)),bbox_inches='tight')
-
-                obs2_s2, mmod2_s2 = GetSeasonMask(obs1, mod1_1, siteid, 2)
-                figannual_s2 = Plot_TimeSeries_cycle_season(obs2_s2, mmod2_s2, 0, 365., col_num=modnumber-1,s=2,site_name=region) # only one output is given
-                figannual_s2.savefig(os.path.join(output_path, "%s_%s_timeseries_s2.png" % (mname, region)), bbox_inches='tight')
-                fighourofday_s2 = Plot_TimeSeries_cycle_reshape_season(obs2_s2, mmod2_s2, 0, 1., col_num=modnumber-1, s=2,site_name=region)
-                fighourofday_s2.savefig(os.path.join(output_path, "%s_%s_timeseries_hourofday_s2.png" % (mname, region)),bbox_inches='tight')
-
-                obs2_s3, mmod2_s3 = GetSeasonMask(obs1, mod1_1, siteid, 3)
-                figannual_s3 = Plot_TimeSeries_cycle_season(obs2_s3, mmod2_s3, 0, 365., col_num=modnumber-1,s=3,site_name=region) # only one output is given
-                figannual_s3.savefig(os.path.join(output_path, "%s_%s_timeseries_s3.png" % (mname, region)), bbox_inches='tight')
-                fighourofday_s3 = Plot_TimeSeries_cycle_reshape_season(obs2_s3, mmod2_s3, 0, 1., col_num=modnumber-1, s=3,site_name=region)
-                fighourofday_s3.savefig(os.path.join(output_path, "%s_%s_timeseries_hourofday_s3.png" % (mname, region)),bbox_inches='tight')
-
-                obs2_s4, mmod2_s4 = GetSeasonMask(obs1, mod1_1, siteid, 4)
-                figannual_s4 = Plot_TimeSeries_cycle_season(obs2_s4, mmod2_s4, 0, 365., col_num=modnumber-1,s=4,site_name=region) # only one output is given
-                figannual_s4.savefig(os.path.join(output_path, "%s_%s_timeseries_s4.png" % (mname, region)), bbox_inches='tight')
-                fighourofday_s4 = Plot_TimeSeries_cycle_reshape_season(obs2_s4, mmod2_s4, 0, 1., col_num=modnumber-1, s=4,site_name=region)
-                fighourofday_s4.savefig(os.path.join(output_path, "%s_%s_timeseries_hourofday_s4.png" % (mname, region)),bbox_inches='tight')
-                plt.close("all")
-
-                ############################### Taylor graphs
-
-                fig_TimeSeries_TaylorGram = Plot_TimeSeries_TaylorGram(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region)
-                fig_TimeSeries_TaylorGram.savefig(os.path.join(output_path, "%s_%s_timeseries_taylorgram.png" % (mname, region)))
-
-                figannual_taylorgram = Plot_TimeSeries_TaylorGram_annual(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region)
-                # plt.show()
-                figannual_taylorgram.savefig(os.path.join(output_path, "%s_%s_timeseries_taylorgram_annual.png" % (mname, region)))
-
-                fighourofda_taylorgram = Plot_TimeSeries_TaylorGram_hourofday(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region)
-                fighourofda_taylorgram.savefig(os.path.join(output_path, "%s_%s_timeseries_taylorgram_hourofday.png" % (mname, region)))
-
-                figcycles_taylorgram =  Plot_TimeSeries_TaylorGram_cycles(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region)
-                figcycles_taylorgram.savefig(os.path.join(output_path, "%s_%s_timeseries_taylorgram_cycles.png" % (mname, region)))
-
-                ################################# response seasonal
-                obs2_1, mmod2_1 = GetSeasonMask(obs1, mod1_1, siteid, 1)
-                obs2_2, mmod2_2 = GetSeasonMask(obs2, mod2_1, siteid, 1)
-                obs2_3, mmod2_3 = GetSeasonMask(obs3, mod3_1, siteid, 1)
-                obs2_4, mmod2_4 = GetSeasonMask(obs4, mod4_1, siteid, 1)
-                fig10_s = Plot_response4(obs2_1, mmod2_1, obs2_2, mmod2_2, obs2_3, mmod2_3, obs2_4, mmod2_4, 0,
-                                         col_num=modnumber - 1, site_name=region, s=1)
-                fig10_s.savefig(os.path.join(output_path, "%s_%s_response4_s1.png" % (mname, region)),
-                                bbox_inches='tight')
-
-                fig9_s = Plot_response2(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1,site_name=region, s=1)
-                fig9_s.savefig(os.path.join(output_path, "%s_%s_response_s1.png" % (mname, region)),bbox_inches='tight')
-                fig2_variable_error_s1 = Plot_response2_error(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1, site_name=region, s=1)
-                fig2_variable_error_s1.savefig(os.path.join(output_path, "%s_%s_response_error_s1.png" % (mname, region)), bbox_inches='tight')
-
-
-                obs2_1, mmod2_1 = GetSeasonMask(obs1, mod1_1, siteid, 2)
-                obs2_2, mmod2_2 = GetSeasonMask(obs2, mod2_1, siteid, 2)
-                obs2_3, mmod2_3 = GetSeasonMask(obs3, mod3_1, siteid, 2)
-                obs2_4, mmod2_4 = GetSeasonMask(obs4, mod4_1, siteid, 2)
-                fig10_s = Plot_response4(obs2_1, mmod2_1, obs2_2, mmod2_2, obs2_3, mmod2_3, obs2_4, mmod2_4, 0,
-                                         col_num=modnumber - 1, site_name=region, s=2)
-                fig10_s.savefig(os.path.join(output_path, "%s_%s_response4_s2.png" % (mname, region)),
-                                bbox_inches='tight')
-
-                fig9_s = Plot_response2(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1,site_name=region, s=2)
-                fig9_s.savefig(os.path.join(output_path, "%s_%s_response_s2.png" % (mname, region)),bbox_inches='tight')
-                fig2_variable_error_s2 = Plot_response2_error(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1, site_name=region, s=2)
-                fig2_variable_error_s2.savefig(os.path.join(output_path, "%s_%s_response_error_s2.png" % (mname, region)), bbox_inches='tight')
-
-
-                obs2_1, mmod2_1 = GetSeasonMask(obs1, mod1_1, siteid, 3)
-                obs2_2, mmod2_2 = GetSeasonMask(obs2, mod2_1, siteid, 3)
-                obs2_3, mmod2_3 = GetSeasonMask(obs3, mod3_1, siteid, 3)
-                obs2_4, mmod2_4 = GetSeasonMask(obs4, mod4_1, siteid, 3)
-                fig10_s = Plot_response4(obs2_1, mmod2_1, obs2_2, mmod2_2, obs2_3, mmod2_3, obs2_4, mmod2_4, 0,
-                                         col_num=modnumber - 1, site_name=region, s=3)
-                fig10_s.savefig(os.path.join(output_path, "%s_%s_response4_s3.png" % (mname, region)),
-                                bbox_inches='tight')
-
-                fig9_s = Plot_response2(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1,site_name=region, s=3)
-                fig9_s.savefig(os.path.join(output_path, "%s_%s_response_s3.png" % (mname, region)),bbox_inches='tight')
-                fig2_variable_error_s3 = Plot_response2_error(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1, site_name=region, s=3)
-                fig2_variable_error_s3.savefig(os.path.join(output_path, "%s_%s_response_error_s3.png" % (mname, region)), bbox_inches='tight')
-
-
-                obs2_1, mmod2_1 = GetSeasonMask(obs1, mod1_1, siteid, 4)
-                obs2_2, mmod2_2 = GetSeasonMask(obs2, mod2_1, siteid, 4)
-                obs2_3, mmod2_3 = GetSeasonMask(obs3, mod3_1, siteid, 4)
-                obs2_4, mmod2_4 = GetSeasonMask(obs4, mod4_1, siteid, 4)
-                fig10_s = Plot_response4(obs2_1, mmod2_1, obs2_2, mmod2_2, obs2_3, mmod2_3, obs2_4, mmod2_4, 0,
-                                         col_num=modnumber - 1, site_name=region, s=4)
-                fig10_s.savefig(os.path.join(output_path, "%s_%s_response4_s4.png" % (mname, region)),
-                                bbox_inches='tight')
+                # ############################## Response obs
+                # fig2_variable = Plot_response2(obs1, mod1_1, obs2, mod2_1, siteid, col_num=modnumber-1,site_name=region, score = self.score)
+                # fig2_variable.savefig(os.path.join(output_path, "%s_%s_response.png" % (mname, region)),bbox_inches='tight')
                 #
-                fig9_s = Plot_response2(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1,site_name=region, s=4)
-                fig9_s.savefig(os.path.join(output_path, "%s_%s_response_s4.png" % (mname, region)),bbox_inches='tight')
-                fig2_variable_error_s4 = Plot_response2_error(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1, site_name=region, s=4)
-                fig2_variable_error_s4.savefig(os.path.join(output_path, "%s_%s_response_error_s4.png" % (mname, region)), bbox_inches='tight')
+                # fig2_variable_error = Plot_response2_error(obs1, mod1_1, obs2, mod2_1, siteid, col_num=modnumber-1, site_name=region)
+                # fig2_variable_error.savefig(os.path.join(output_path, "%s_%s_response_error.png" % (mname, region)), bbox_inches='tight')
+                #
+                # fig4_variable = Plot_response4(obs1, mod1_1, obs2, mod2_1, obs3, mod3_1, obs4, mod4_1, siteid,
+                #                                col_num=modnumber - 1, site_name=region, score = self.score)
+                # fig4_variable.savefig(os.path.join(output_path, "%s_%s_response4.png" % (mname, region)),
+                #                       bbox_inches='tight')
+                #
+                # fig_corr = plot_4_variable_corr(obs1, mod1_1, obs2, mod2_1, obs3, mod3_1, obs4, mod4_1, siteid, col_num=modnumber-1,site_name=region, score = self.score)
+                # fig_corr.savefig(os.path.join(output_path, "%s_%s_corr4.png" % (mname, region)),bbox_inches='tight')
+                # plt.close("all")
+                #
+                # ############################## timeseries_hourofday
+                # obs2_s1, mmod2_s1 = GetSeasonMask(obs1, mod1_1, siteid, 1)
+                # figannual_s1 = Plot_TimeSeries_cycle_season(obs2_s1, mmod2_s1, 0, 365., col_num=modnumber-1,s=1,site_name=region, score = self.score) # only one output is given
+                # figannual_s1.savefig(os.path.join(output_path, "%s_%s_timeseries_s1.png" % (mname, region)), bbox_inches='tight')
+                # fighourofday_s1 = Plot_TimeSeries_cycle_reshape_season(obs2_s1, mmod2_s1, 0, 1., col_num=modnumber-1, s=1,site_name=region, score = self.score)
+                # fighourofday_s1.savefig(os.path.join(output_path, "%s_%s_timeseries_hourofday_s1.png" % (mname, region)),bbox_inches='tight')
+                #
+                # obs2_s2, mmod2_s2 = GetSeasonMask(obs1, mod1_1, siteid, 2)
+                # figannual_s2 = Plot_TimeSeries_cycle_season(obs2_s2, mmod2_s2, 0, 365., col_num=modnumber-1,s=2,site_name=region, score = self.score) # only one output is given
+                # figannual_s2.savefig(os.path.join(output_path, "%s_%s_timeseries_s2.png" % (mname, region)), bbox_inches='tight')
+                # fighourofday_s2 = Plot_TimeSeries_cycle_reshape_season(obs2_s2, mmod2_s2, 0, 1., col_num=modnumber-1, s=2,site_name=region, score = self.score)
+                # fighourofday_s2.savefig(os.path.join(output_path, "%s_%s_timeseries_hourofday_s2.png" % (mname, region)),bbox_inches='tight')
+                #
+                # obs2_s3, mmod2_s3 = GetSeasonMask(obs1, mod1_1, siteid, 3)
+                # figannual_s3 = Plot_TimeSeries_cycle_season(obs2_s3, mmod2_s3, 0, 365., col_num=modnumber-1,s=3,site_name=region, score = self.score) # only one output is given
+                # figannual_s3.savefig(os.path.join(output_path, "%s_%s_timeseries_s3.png" % (mname, region)), bbox_inches='tight')
+                # fighourofday_s3 = Plot_TimeSeries_cycle_reshape_season(obs2_s3, mmod2_s3, 0, 1., col_num=modnumber-1, s=3,site_name=region, score = self.score)
+                # fighourofday_s3.savefig(os.path.join(output_path, "%s_%s_timeseries_hourofday_s3.png" % (mname, region)),bbox_inches='tight')
+                #
+                # obs2_s4, mmod2_s4 = GetSeasonMask(obs1, mod1_1, siteid, 4)
+                # figannual_s4 = Plot_TimeSeries_cycle_season(obs2_s4, mmod2_s4, 0, 365., col_num=modnumber-1,s=4,site_name=region, score = self.score) # only one output is given
+                # figannual_s4.savefig(os.path.join(output_path, "%s_%s_timeseries_s4.png" % (mname, region)), bbox_inches='tight')
+                # fighourofday_s4 = Plot_TimeSeries_cycle_reshape_season(obs2_s4, mmod2_s4, 0, 1., col_num=modnumber-1, s=4,site_name=region, score = self.score)
+                # fighourofday_s4.savefig(os.path.join(output_path, "%s_%s_timeseries_hourofday_s4.png" % (mname, region)),bbox_inches='tight')
+                # plt.close("all")
+                #
+                # ############################### Taylor graphs
+                #
+                # fig_TimeSeries_TaylorGram = Plot_TimeSeries_TaylorGram(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region, score = self.score)
+                # fig_TimeSeries_TaylorGram.savefig(os.path.join(output_path, "%s_%s_timeseries_taylorgram.png" % (mname, region)))
+                #
+                # figannual_taylorgram = Plot_TimeSeries_TaylorGram_annual(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region, score = self.score)
+                # figannual_taylorgram.savefig(os.path.join(output_path, "%s_%s_timeseries_taylorgram_annual.png" % (mname, region)))
+                #
+                # fighourofda_taylorgram = Plot_TimeSeries_TaylorGram_hourofday(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region, score = self.score)
+                # fighourofda_taylorgram.savefig(os.path.join(output_path, "%s_%s_timeseries_taylorgram_hourofday.png" % (mname, region)))
+                #
+                # figcycles_taylorgram =  Plot_TimeSeries_TaylorGram_cycles(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region, score = self.score)
+                # figcycles_taylorgram.savefig(os.path.join(output_path, "%s_%s_timeseries_taylorgram_cycles.png" % (mname, region)))
+                #
+                # ################################# response seasonal
+                # obs2_1, mmod2_1 = GetSeasonMask(obs1, mod1_1, siteid, 1)
+                # obs2_2, mmod2_2 = GetSeasonMask(obs2, mod2_1, siteid, 1)
+                # obs2_3, mmod2_3 = GetSeasonMask(obs3, mod3_1, siteid, 1)
+                # obs2_4, mmod2_4 = GetSeasonMask(obs4, mod4_1, siteid, 1)
+                # fig10_s = Plot_response4(obs2_1, mmod2_1, obs2_2, mmod2_2, obs2_3, mmod2_3, obs2_4, mmod2_4, 0,
+                #                          col_num=modnumber - 1, site_name=region, s=1)
+                # fig10_s.savefig(os.path.join(output_path, "%s_%s_response4_s1.png" % (mname, region)),
+                #                 bbox_inches='tight')
+                #
+                # fig9_s = Plot_response2(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1,site_name=region, s=1, score = self.score)
+                # fig9_s.savefig(os.path.join(output_path, "%s_%s_response_s1.png" % (mname, region)),bbox_inches='tight')
+                # fig2_variable_error_s1 = Plot_response2_error(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1, site_name=region, s=1)
+                # fig2_variable_error_s1.savefig(os.path.join(output_path, "%s_%s_response_error_s1.png" % (mname, region)), bbox_inches='tight')
+                #
+                #
+                # obs2_1, mmod2_1 = GetSeasonMask(obs1, mod1_1, siteid, 2)
+                # obs2_2, mmod2_2 = GetSeasonMask(obs2, mod2_1, siteid, 2)
+                # obs2_3, mmod2_3 = GetSeasonMask(obs3, mod3_1, siteid, 2)
+                # obs2_4, mmod2_4 = GetSeasonMask(obs4, mod4_1, siteid, 2)
+                # fig10_s = Plot_response4(obs2_1, mmod2_1, obs2_2, mmod2_2, obs2_3, mmod2_3, obs2_4, mmod2_4, 0,
+                #                          col_num=modnumber - 1, site_name=region, s=2)
+                # fig10_s.savefig(os.path.join(output_path, "%s_%s_response4_s2.png" % (mname, region)),
+                #                 bbox_inches='tight')
+                #
+                # fig9_s = Plot_response2(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1,site_name=region, s=2, score = self.score)
+                # fig9_s.savefig(os.path.join(output_path, "%s_%s_response_s2.png" % (mname, region)),bbox_inches='tight')
+                # fig2_variable_error_s2 = Plot_response2_error(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1, site_name=region, s=2)
+                # fig2_variable_error_s2.savefig(os.path.join(output_path, "%s_%s_response_error_s2.png" % (mname, region)), bbox_inches='tight')
+                #
+                #
+                # obs2_1, mmod2_1 = GetSeasonMask(obs1, mod1_1, siteid, 3)
+                # obs2_2, mmod2_2 = GetSeasonMask(obs2, mod2_1, siteid, 3)
+                # obs2_3, mmod2_3 = GetSeasonMask(obs3, mod3_1, siteid, 3)
+                # obs2_4, mmod2_4 = GetSeasonMask(obs4, mod4_1, siteid, 3)
+                # fig10_s = Plot_response4(obs2_1, mmod2_1, obs2_2, mmod2_2, obs2_3, mmod2_3, obs2_4, mmod2_4, 0,
+                #                          col_num=modnumber - 1, site_name=region, s=3)
+                # fig10_s.savefig(os.path.join(output_path, "%s_%s_response4_s3.png" % (mname, region)),
+                #                 bbox_inches='tight')
+                #
+                # fig9_s = Plot_response2(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1,site_name=region, s=3, score = self.score)
+                # fig9_s.savefig(os.path.join(output_path, "%s_%s_response_s3.png" % (mname, region)),bbox_inches='tight')
+                # fig2_variable_error_s3 = Plot_response2_error(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1, site_name=region, s=3)
+                # fig2_variable_error_s3.savefig(os.path.join(output_path, "%s_%s_response_error_s3.png" % (mname, region)), bbox_inches='tight')
+                #
+                #
+                # obs2_1, mmod2_1 = GetSeasonMask(obs1, mod1_1, siteid, 4)
+                # obs2_2, mmod2_2 = GetSeasonMask(obs2, mod2_1, siteid, 4)
+                # obs2_3, mmod2_3 = GetSeasonMask(obs3, mod3_1, siteid, 4)
+                # obs2_4, mmod2_4 = GetSeasonMask(obs4, mod4_1, siteid, 4)
+                # fig10_s = Plot_response4(obs2_1, mmod2_1, obs2_2, mmod2_2, obs2_3, mmod2_3, obs2_4, mmod2_4, 0,
+                #                          col_num=modnumber - 1, site_name=region, s=4, score = self.score)
+                # fig10_s.savefig(os.path.join(output_path, "%s_%s_response4_s4.png" % (mname, region)),
+                #                 bbox_inches='tight')
+                # #
+                # fig9_s = Plot_response2(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1,site_name=region, s=4, score = self.score)
+                # fig9_s.savefig(os.path.join(output_path, "%s_%s_response_s4.png" % (mname, region)),bbox_inches='tight')
+                # fig2_variable_error_s4 = Plot_response2_error(obs2_1, mmod2_1, obs2_2, mmod2_2, 0, col_num=modnumber-1, site_name=region, s=4)
+                # fig2_variable_error_s4.savefig(os.path.join(output_path, "%s_%s_response_error_s4.png" % (mname, region)), bbox_inches='tight')
+                #
+                # ################################ Corrlation Metrix
+                # all_corr_h = []
+                # all_corr_h_d = []
+                # for j in range(len(h_mod1)):
+                #     corr_h, mask_h = correlation_matrix(h_data[:, j, :, siteid].T)
+                #     detrend_corr_h = detrend_corr(h_data[:, j, :, siteid].T)
+                #
+                #     all_corr_h.append(corr_h)
+                #     all_corr_h_d.append(detrend_corr_h)
+                # fig = plot_variable_matrix_trend_and_detrend(np.asarray(all_corr_h), np.asarray(all_corr_h_d),
+                #                                              variable_list, col_num=modnumber - 1, site_name=region, score = self.score)
+                # fig.savefig(os.path.join(output_path, "%s_%s_correlation_box.png" % (mname, region)),
+                #             bbox_inches='tight')
 
-                ################################ Corrlation Metrix
-                all_corr_h = []
-                all_corr_h_d = []
-                for j in range(len(h_mod1)):
-                    corr_h, mask_h = correlation_matrix(h_data[:, j, :, siteid].T)
-                    detrend_corr_h = detrend_corr(h_data[:, j, :, siteid].T)
-
-                    all_corr_h.append(corr_h)
-                    all_corr_h_d.append(detrend_corr_h)
-                fig = plot_variable_matrix_trend_and_detrend(np.asarray(all_corr_h), np.asarray(all_corr_h_d),
-                                                             variable_list, col_num=modnumber - 1, site_name=region)
-                fig.savefig(os.path.join(output_path, "%s_%s_correlation_box.png" % (mname, region)),
-                            bbox_inches='tight')
-
-
-        mmname = ["Model1", "Model2", "Models"]
+        #
+        mmname = self.mmname[1:]+ [self.mmname[0]]
         for modnumber, mname in enumerate(mmname):
             for regionid, bigregion in enumerate(self.regions[self.sitenumber:]):
                 timesseries = ['_timeseries_hourly.png', '_timeseries_daily.png', '_timeseries_monthly.png',
@@ -1627,134 +1665,56 @@ class ConfSite(Confrontation):
 
 
         page.addFigure("Time series", ('(Time Series)' + "Legend"), output_path + "MNAME_RNAME_timeseries_legend.png", legend=False)
+        page.addFigure("Time series", ('(Time Series)' + "Hourly"), output_path + "MNAME_RNAME_timeseries_hourly.png", legend=False)
+        page.addFigure("Time series", ('(Time Series)' + "Daily"), output_path + "MNAME_RNAME_timeseries_daily.png", legend=False)
+        page.addFigure("Time series", ('(Time Series)' + "Monthly"), output_path + "MNAME_RNAME_timeseries_monthly.png", legend=False)
+        page.addFigure("Time series", ('(Time Series)' + "Seasonly"), output_path + "MNAME_RNAME_timeseries_seasonly.png", legend=False)
+        page.addFigure("Time series", ('(Time Series)' + "Taylor"), output_path + "MNAME_RNAME_timeseries_taylorgram.png",  legend=False)
 
-        page.addFigure("Time series", ('(Time Series)' + "Hourly"), output_path + "MNAME_RNAME_timeseries_hourly.png",
-                        legend=False)
+        page.addFigure("Time series(Annually)", ('(Time Series)' + "Yearly"), output_path + "MNAME_RNAME_timeseries_yearly.png", legend=False)
+        page.addFigure("Time series(Annually)", ('(Time Series)' + "Season 1"), output_path + "MNAME_RNAME_timeseries_s1.png", legend=False)
+        page.addFigure("Time series(Annually)", ('(Time Series)' + "Season 2"), output_path + "MNAME_RNAME_timeseries_s2.png", legend=False)
+        page.addFigure("Time series(Annually)", ('(Time Series)' + "Season 3"), output_path + "MNAME_RNAME_timeseries_s3.png",  legend=False)
+        page.addFigure("Time series(Annually)", ('(Time Series)' + "Season 4"), output_path + "MNAME_RNAME_timeseries_s4.png", legend=False)
+        page.addFigure("Time series(Annually)", ('(Time Series)' + "TaylorAnnual"), output_path + "MNAME_RNAME_timeseries_taylorgram_annual.png",  legend=False)
 
-        page.addFigure("Time series", ('(Time Series)' + "Daily"), output_path + "MNAME_RNAME_timeseries_daily.png",
-                       legend=False)
+        page.addFigure("PDF CDF", ('(PDF & CDF)' + "PDF & CDF"), output_path + "MNAME_RNAME_PDFCDF.png", legend=False)
 
-        page.addFigure("Time series", ('(Time Series)' + "Monthly"), output_path + "MNAME_RNAME_timeseries_monthly.png",
-                        legend=False)
+        page.addFigure("Cycles mean(seasonly)", ("Time Series"), output_path + "MNAME_RNAME_timeseries_hourofday.png", legend=False)
+        page.addFigure("Cycles mean(seasonly)", ("Season 1"), output_path + "MNAME_RNAME_timeseries_hourofday_s1.png",  legend=False)
+        page.addFigure("Cycles mean(seasonly)", ("Season 2"), output_path + "MNAME_RNAME_timeseries_hourofday_s2.png",  legend=False)
+        page.addFigure("Cycles mean(seasonly)", ("Season 3"), output_path + "MNAME_RNAME_timeseries_hourofday_s3.png", legend=False)
+        page.addFigure("Cycles mean(seasonly)", ("Season 4"), output_path + "MNAME_RNAME_timeseries_hourofday_s4.png", legend=False)
+        page.addFigure("Cycles mean(seasonly)", ("Taylor Graph"), output_path + "MNAME_RNAME_timeseries_taylorgram_hourofday.png", legend=False)
 
-        page.addFigure("Time series", ('(Time Series)' + "Seasonly"), output_path + "MNAME_RNAME_timeseries_seasonly.png",
-                        legend=False)
+        page.addFigure("Cycles mean", ('(Cycle 1)' + "Time Series"), output_path + "MNAME_RNAME_timeseries_dayofyear.png", legend=False)
+        page.addFigure("Cycles mean", ('(Cycle 2)' + "Time Series"), output_path + "MNAME_RNAME_timeseries_monthofyear.png", legend=False)
+        page.addFigure("Cycles mean", ('(Cycle 3)' + "Time Series"),   output_path + "MNAME_RNAME_timeseries_seasonofyear.png", legend=False)
+        page.addFigure("Cycles mean", ('(Cycle 4)' + "Time Series"),  output_path + "MNAME_RNAME_timeseries_taylorgram_cycles.png", legend=False)
 
-        page.addFigure("Time series", ('(Time Series)' + "Taylor"), output_path + "MNAME_RNAME_timeseries_taylorgram.png",
-                        legend=False)
+        page.addFigure("Frequency", ('(Wavelet)' + "Wavelet Obs"), output_path + "MNAME_RNAME_wavelet.png", legend=False)
+        page.addFigure("Frequency", ('(Wavelet)' + "Wavelet Mod0"), output_path + "MNAME_RNAME_wavelet_Mod0.png", legend=False)
 
+        page.addFigure("Response two variables", ('(Time Series)' + "Legend2"), output_path + "MNAME_RNAME_timeseries_legend.png", legend=False)
+        page.addFigure("Response two variables", ('(Response)' + "Response"), output_path + "MNAME_RNAME_response.png", legend=False)
+        page.addFigure("Response two variables", ('(Response)' + "Response_error"), output_path + "MNAME_RNAME_response_error.png",  legend=False)
+        page.addFigure("Response two variables", ('(Response)' + "Response(DJF)"), output_path + "MNAME_RNAME_response_s1.png", legend=False)
+        page.addFigure("Response two variables", ('(Response)' + "Response(DJF)1"),  output_path + "MNAME_RNAME_response_error_s1.png", legend=False)
+        page.addFigure("Response two variables", ('(Response)' + "Response(MAM)"), output_path + "MNAME_RNAME_response_s2.png", legend=False)
+        page.addFigure("Response two variables", ('(Response)' + "Response(MAM)2"), output_path + "MNAME_RNAME_response_error_s2.png",  legend=False)
+        page.addFigure("Response two variables", ('(Response)' + "Response(JJA)"), output_path + "MNAME_RNAME_response_s3.png", legend=False)
+        page.addFigure("Response two variables", ('(Response)' + "Response(JJA)2"),  output_path + "MNAME_RNAME_response_error_s3.png",  legend=False)
+        page.addFigure("Response two variables", ('(Response)' + "Response(SON)"), output_path + "MNAME_RNAME_response_s4.png", legend=False)
+        page.addFigure("Response two variables", ('(Response)' + "Response(SON)2"), output_path + "MNAME_RNAME_response_error_s4.png", legend=False)
 
-        page.addFigure("Time series(Annually)", ('(Time Series)' + "Yearly"), output_path + "MNAME_RNAME_timeseries_yearly.png",
-                        legend=False)
+        page.addFigure("Response four variables", ('(Response)' + "Response 4 Variable"), output_path + "MNAME_RNAME_response4.png", legend=False)
+        page.addFigure("Response four variables", ('(Response)' + "Response 4 Variable(DJF)"), output_path + "MNAME_RNAME_response4_s1.png", legend=False)
+        page.addFigure("Response four variables", ('(Response)' + "Response 4 Variable(MAM)"), output_path + "MNAME_RNAME_response4_s2.png", legend=False)
+        page.addFigure("Response four variables", ('(Response)' + "Response 4 Variable(JJA)"),  output_path + "MNAME_RNAME_response4_s3.png", legend=False)
+        page.addFigure("Response four variables", ('(Response)' + "Response 4 Variable(SON)"),  output_path + "MNAME_RNAME_response4_s4.png",  legend=False)
 
-        page.addFigure("Time series(Annually)", ('(Time Series)' + "Season 1"), output_path + "MNAME_RNAME_timeseries_s1.png",
-                        legend=False)
-
-        page.addFigure("Time series(Annually)", ('(Time Series)' + "Season 2"), output_path + "MNAME_RNAME_timeseries_s2.png",
-                        legend=False)
-
-        page.addFigure("Time series(Annually)", ('(Time Series)' + "Season 3"), output_path + "MNAME_RNAME_timeseries_s3.png",
-                        legend=False)
-
-        page.addFigure("Time series(Annually)", ('(Time Series)' + "Season 4"), output_path + "MNAME_RNAME_timeseries_s4.png",
-                        legend=False)
-
-        page.addFigure("Time series(Annually)", ('(Time Series)' + "TaylorAnnual"), output_path + "MNAME_RNAME_timeseries_taylorgram_annual.png",
-                        legend=False)
-
-
-        page.addFigure("PDF CDF", ('(PDF & CDF)' + "PDF & CDF"), output_path + "MNAME_RNAME_PDFCDF.png",
-                        legend=False)
-
-        page.addFigure("Cycles mean(seasonly)", ("Time Series"), output_path + "MNAME_RNAME_timeseries_hourofday.png",
-                        legend=False)
-
-        page.addFigure("Cycles mean(seasonly)", ("Season 1"), output_path + "MNAME_RNAME_timeseries_hourofday_s1.png",
-                        legend=False)
-
-        page.addFigure("Cycles mean(seasonly)", ("Season 2"), output_path + "MNAME_RNAME_timeseries_hourofday_s2.png",
-                       legend=False)
-
-        page.addFigure("Cycles mean(seasonly)", ("Season 3"), output_path + "MNAME_RNAME_timeseries_hourofday_s3.png",
-                        legend=False)
-
-        page.addFigure("Cycles mean(seasonly)", ("Season 4"), output_path + "MNAME_RNAME_timeseries_hourofday_s4.png",
-                       legend=False)
-
-        page.addFigure("Cycles mean(seasonly)", ("Taylor Graph"),
-                       output_path + "MNAME_RNAME_timeseries_taylorgram_hourofday.png",
-                        legend=False)
-
-
-        page.addFigure("Cycles mean", ('(Cycle 1)' + "Time Series"), output_path + "MNAME_RNAME_timeseries_dayofyear.png",
-                        legend=False)
-
-        page.addFigure("Cycles mean", ('(Cycle 2)' + "Time Series"),
-                       output_path + "MNAME_RNAME_timeseries_monthofyear.png",
-                        legend=False)
-
-        page.addFigure("Cycles mean", ('(Cycle 3)' + "Time Series"),
-                       output_path + "MNAME_RNAME_timeseries_seasonofyear.png",
-                        legend=False)
-
-        page.addFigure("Cycles mean", ('(Cycle 4)' + "Time Series"),
-                       output_path + "MNAME_RNAME_timeseries_taylorgram_cycles.png",
-                        legend=False)
-
-        page.addFigure("Frequency", ('(Wavelet)' + "Wavelet Obs"), output_path + "MNAME_RNAME_wavelet.png",
-                        legend=False)
-        page.addFigure("Frequency", ('(Wavelet)' + "Wavelet Mod0"), output_path + "MNAME_RNAME_wavelet_Mod0.png",
-                       legend=False)
-
-        page.addFigure("Response two variables", ('(Time Series)' + "Legend2"), output_path + "MNAME_RNAME_timeseries_legend.png",
-                       legend=False)
-        page.addFigure("Response two variables", ('(Response)' + "Response"), output_path + "MNAME_RNAME_response.png",
-                        legend=False)
-
-        page.addFigure("Response two variables", ('(Response)' + "Response_error"), output_path + "MNAME_RNAME_response_error.png",
-                        legend=False)
-
-        page.addFigure("Response two variables", ('(Response)' + "Response(DJF)"), output_path + "MNAME_RNAME_response_s1.png",
-                        legend=False)
-        page.addFigure("Response two variables", ('(Response)' + "Response(DJF)1"),
-                       output_path + "MNAME_RNAME_response_error_s1.png",
-                       legend=False)
-        page.addFigure("Response two variables", ('(Response)' + "Response(MAM)"), output_path + "MNAME_RNAME_response_s2.png",
-                       legend=False)
-        page.addFigure("Response two variables", ('(Response)' + "Response(MAM)2"),
-                       output_path + "MNAME_RNAME_response_error_s2.png",
-                       legend=False)
-        page.addFigure("Response two variables", ('(Response)' + "Response(JJA)"), output_path + "MNAME_RNAME_response_s3.png",
-                        legend=False)
-        page.addFigure("Response two variables", ('(Response)' + "Response(JJA)2"),
-                       output_path + "MNAME_RNAME_response_error_s3.png",
-                       legend=False)
-        page.addFigure("Response two variables", ('(Response)' + "Response(SON)"), output_path + "MNAME_RNAME_response_s4.png",
-                        legend=False)
-
-        page.addFigure("Response two variables", ('(Response)' + "Response(SON)2"),
-                       output_path + "MNAME_RNAME_response_error_s4.png",
-                       legend=False)
-
-        page.addFigure("Response four variables", ('(Response)' + "Response 4 Variable"), output_path + "MNAME_RNAME_response4.png",
-                       legend=False)
-        page.addFigure("Response four variables", ('(Response)' + "Response 4 Variable(DJF)"),
-                       output_path + "MNAME_RNAME_response4_s1.png",
-                        legend=False)
-        page.addFigure("Response four variables", ('(Response)' + "Response 4 Variable(MAM)"),
-                       output_path + "MNAME_RNAME_response4_s2.png",
-                        legend=False)
-        page.addFigure("Response four variables", ('(Response)' + "Response 4 Variable(JJA)"),
-                       output_path + "MNAME_RNAME_response4_s3.png",
-                        legend=False)
-        page.addFigure("Response four variables", ('(Response)' + "Response 4 Variable(SON)"),
-                       output_path + "MNAME_RNAME_response4_s4.png",
-                        legend=False)
-
-        page.addFigure("Correlations", ('(Correlations)' + "Correlations"), output_path + "MNAME_RNAME_corr4.png",
-                        legend=False)
-        page.addFigure("Correlations", ('(Correlations)' + "Correlations_box"), output_path + "MNAME_RNAME_correlation_box.png",
-                       legend=False)
+        page.addFigure("Correlations", ('(Correlations)' + "Correlations"), output_path + "MNAME_RNAME_corr4.png",  legend=False)
+        page.addFigure("Correlations", ('(Correlations)' + "Correlations_box"), output_path + "MNAME_RNAME_correlation_box.png", legend=False)
 
 
 
@@ -1771,31 +1731,27 @@ class ConfSite(Confrontation):
         output_path = self.output_path #'/Users/lli51/Documents/ILAMB_sample/'
         # output_path ='/Users/lli51/Documents/ILAMB_sample/'
 
-        for modname in self.mmname:#
+        for j, modname in enumerate(self.mmname):#
             # output_path = '/Users/lli51/Documents/ILAMB_sample/'
             results = Dataset(os.path.join(output_path, "%s_%s.nc" % (self.name, modname)), mode="w")
             results.setncatts({"name": modname, "color": m.color})
-            Variable(name=("Score"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-            Variable(name=("Mean"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-            Variable(name=("Bias"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-            Variable(name=("MSE"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-            Variable(name=("Deviation"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-            Variable(name=("Frequency"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-            Variable(name=("Correlation"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
+            for siteid, region in enumerate(self.regions[:-1]):
+                for metric in self.new_metrics:
+                    Variable(name=(region+metric), unit=self.uni_metrics[metric], data=self.score[metric][siteid][j]).toNetCDF4(results, group="MeanState")
+            for metric in self.new_metrics:
+                Variable(name=('global' + metric), unit=self.uni_metrics[metric], data=self.score[metric].mean(axis=0)[j]).toNetCDF4(results, group="MeanState")
             results.close()
 
-
-            if self.master:
-                results = Dataset(os.path.join(output_path, "%s_Benchmark.nc" % (self.name)), mode="w")
-                results.setncatts({"name": "Benchmark", "color": np.asarray([0.5, 0.5, 0.5])})
-                Variable(name=("Score"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-                Variable(name=("Mean"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-                Variable(name=("Bias"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-                Variable(name=("MSE"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-                Variable(name=("Deviation"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-                Variable(name=("Frequency"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-                Variable(name=("Correlation"), unit="0-1", data=0).toNetCDF4(results, group="MeanState")
-                results.close()
+        if self.master:
+            results = Dataset(os.path.join(output_path, "%s_Benchmark.nc" % (self.name)), mode="w")
+            results.setncatts({"name": "Benchmark", "color": np.asarray([0.5, 0.5, 0.5])})
+            for siteid, region in enumerate(self.regions[:-1]):
+                for metric in self.new_metrics:
+                    Variable(name=(region + metric), unit=self.uni_metrics[metric], data=self.score[metric][siteid][-1]).toNetCDF4(results, group="MeanState")
+            for metric in self.new_metrics:
+                Variable(name=('global' + metric), unit=self.uni_metrics[metric], data=self.score[metric].mean(axis=0)[-1]).toNetCDF4(
+                    results, group="MeanState")
+            results.close()
 
 
         if not self.master: return
