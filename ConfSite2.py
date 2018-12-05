@@ -26,7 +26,8 @@ import pandas as pd
 import seaborn as sns; sns.set()
 import os, glob, math, calendar, PIL
 from PIL import Image
-
+from scipy.linalg import norm
+from scipy.spatial.distance import euclidean
 # self-package
 from taylorDiagram import plot_Taylor_graph_time_basic
 from taylorDiagram import plot_Taylor_graph_season_cycle
@@ -213,6 +214,7 @@ def Plot_TimeSeries(obs, mmod, site_id, col_num=0, site_name = None, score = Non
         score['h_var'][site_id][-1] = xx.var()
         score['Coffcoef'][site_id][-1] = np.corrcoef(xx)
 
+
     fig0 = plt.figure(figsize=(7, 4))
     # ax0 = fig0.add_subplot(1, 1, 1)
     ax0 = plt.gca()
@@ -245,6 +247,9 @@ def Plot_TimeSeries(obs, mmod, site_id, col_num=0, site_name = None, score = Non
         score['h_std'][site_id][col_num+1] = zz.std()
         score['h_var'][site_id][col_num+1] = zz.var()
         score['Coffcoef'][site_id][col_num+1]=np.corrcoef(x,z)[0][1]
+        score['RMSE'][site_id][col_num + 1] = np.sqrt(((x-zz)**2).mean())
+        score['Hellinger'][site_id][col_num + 1] = norm(np.sqrt(x)-np.sqrt(zz))/np.sqrt(2)
+
 
     # fig0, samples0 = plot_Taylor_graph(xx, mods, fig0, 212, bbox_to_anchor=(1, 0.45), datamask=None)
     figLegend = plt.figure(figsize=(3, 3))
@@ -1236,9 +1241,9 @@ class ConfSite(Confrontation):
         self.sitenumber = 3  # len(regions)
         # self.mmname = ["Model1", "Model2", "Models"]
         self.mmname = ["Models", "Model1", "Model2"]
-        self.new_metrics = ['h_mean','h_std','h_var','FrequencyMax','FrequencyTMax','Coffcoef']
+        self.new_metrics = ['h_mean','h_std','h_var','FrequencyMax','FrequencyTMax','Coffcoef','RMSE','Hellinger']
         # self.nam_metrics = ['Mean','Anom','Median','Std','Varance','Frequency','Correlation']
-        self.uni_metrics = {'h_mean':obs.unit,'h_anom': obs.unit, 'h_median': obs.unit, 'h_var': obs.unit+'^2','FrequencyMax': 'Months','FrequencyTMax': 'Months','Coffcoef': '0-1', 'h_std': '0-1'}
+        self.uni_metrics = {'h_mean':obs.unit,'h_anom': obs.unit, 'h_median': obs.unit, 'h_var': obs.unit+'^2','FrequencyMax': 'Months','FrequencyTMax': 'Months','Coffcoef': '0-1', 'h_std': '0-1', 'RMSE': '0-1','Hellinger':'0-1'}
 
         self.score = {}
         for metric in self.new_metrics:
@@ -1730,7 +1735,7 @@ class ConfSite(Confrontation):
         # only the master processor needs to do this
         output_path = self.output_path #'/Users/lli51/Documents/ILAMB_sample/'
         # output_path ='/Users/lli51/Documents/ILAMB_sample/'
-
+        # output_path = '/Users/lli51/iLAMB_ConSite/'
         for j, modname in enumerate(self.mmname):#
             # output_path = '/Users/lli51/Documents/ILAMB_sample/'
             results = Dataset(os.path.join(output_path, "%s_%s.nc" % (self.name, modname)), mode="w")
