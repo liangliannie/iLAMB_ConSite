@@ -1,6 +1,6 @@
+from ILAMB.Variable import Variable
 from ILAMB.Confrontation import Confrontation
 from ILAMB.ModelResult import ModelResult
-from ILAMB.Variable import Variable
 from ILAMB.Confrontation import getVariableList
 from ILAMB.Regions import Regions
 import ILAMB.ilamblib as il
@@ -10,8 +10,8 @@ from netCDF4 import Dataset
 import matplotlib.pyplot as plt, numpy as np
 from matplotlib.collections import LineCollection
 # import ILAMB.Post1 as post
-import ILAMB.Post3 as post
-# import ILAMB.Post as post
+# import ILAMB.Post3 as post
+import ILAMB.Post as post
 from scipy.interpolate import CubicSpline
 from scipy import stats, linalg
 from scipy import signal
@@ -35,10 +35,10 @@ from taylorDiagram import plot_Taylor_graph
 from taylorDiagram import plot_Taylor_graph_day_cycle
 from taylorDiagram import plot_Taylor_graph_three_cycle
 import waipy
-from PyEMD import EEMD
-from hht import hht
-from hht import plot_imfs
-from hht import plot_frequency
+# from PyEMD import EEMD
+# from hht import hht
+# from hht import plot_imfs
+# from hht import plot_frequency
 
 
 
@@ -48,7 +48,30 @@ col = ['plum', 'darkorchid', 'blue', 'navy', 'deepskyblue', 'darkcyan', 'seagree
        'olivedrab', 'gold', 'tan', 'red', 'palevioletred', 'm', 'plum']
 
 def pil_grid(images, max_horiz=np.iinfo(int).max):
-    '''This is a function used to list all the pictures'''
+    """
+    Line up all the images into lines in website.
+
+    This is a function used to list all the pictures and place them line by line.
+
+    Parameters
+    ----------
+    images : List of imgs
+        List of images to be organize
+    max_horiz : int
+        the number of images in each line
+
+    Returns
+    -------
+    image
+        One image embebed with the given input
+
+    Examples
+    --------
+    >>> add([image1,image2], 1)
+    image1
+
+    """
+
     n_images = len(images)
     n_horiz = min(n_images, max_horiz)
     h_sizes, v_sizes = [0] * n_horiz, [0] * (n_images // n_horiz)
@@ -63,6 +86,34 @@ def pil_grid(images, max_horiz=np.iinfo(int).max):
     return im_grid
 
 def change_x_tick(obs, tt, site_id, ax0):
+    """
+    Change the x tick with more meaning x-axis.
+
+    This is a function used to Change the x tick.
+
+    Parameters
+    ----------
+    obs : iLAMB variable object or other object with mask or time
+        List of images to be organize
+    tt : list
+        The original time
+    site_id : site_name (optional)
+        To put a name on the ax0 as the name of the subplot
+    ax0 : fig axis
+        Change the axis
+
+    Returns
+    -------
+    Null
+        The subplot will be changed accordingly
+
+    Examples
+    --------
+    >>> change_x_tick(obs, obs.time, site_id, ax0)
+
+
+    """
+
     tmask = np.where(obs.mask == False)[0]
     if tmask.size > 0:
         tmin, tmax = tmask[[0, -1]]
@@ -80,6 +131,33 @@ def change_x_tick(obs, tt, site_id, ax0):
     ax0.set_xticklabels(ticklabels)
 
 def CycleReshape(var, cycle_length=None):  # cycle_length [days]
+    """
+    Reshape the data into shapes based on different cycle length.
+
+    This is a function used to reshape the variable object.
+
+    Parameters
+    ----------
+    var : iLAMB variable object, withs shape  *time x site dimensions*
+        Original data needs to be processed
+    cycle_length : float
+        The cycle_length, i.e. 90.0 means one season, or 30.0 means monthly data
+
+    Returns
+    -------
+    cycle:
+        time x cycles x site dimensions
+    t:
+        time of first cycle
+    tbnd:
+        the time bound feather in original iLAMB variable object
+
+    Examples
+    --------
+    >>> cycle, t, tbnd = CycleReshape(obs, cycle_length=30.0)
+
+
+    """
     if cycle_length == None:
         cycle_length = 1.
     dt = ((var.time_bnds[:, 1] - var.time_bnds[:, 0]).mean())
@@ -109,8 +187,36 @@ def CycleReshape(var, cycle_length=None):  # cycle_length [days]
     return cycle, t, tbnd  # bounds on time
 
 def GetSeasonMask(obs, mmod, site_id, season_kind):
-    # print('This function is used to mask seasons!')
-    # The input data is annual data
+    """
+    MASK the season data and leave one season data available.
+
+    This is a function used to mask the variable object for both observations and models.
+
+    Parameters
+    ----------
+    obs : iLAMB variable object
+        Observations data needs to be processed
+    mmod : list of iLAMB variable object
+        Models in a list to be processed
+    site_id: int
+        The name of the site to be processed ()
+    Season_kind: int
+        The season needed to be left (1: 'DJF', 2: 'MAM', 3: 'JJA', 4: 'SON')
+
+    Returns
+    -------
+    obs2:
+        iLAMB variable object
+    mmod2:
+        list of iLAMB variable object
+
+    Examples
+    --------
+    >>> obs,mmod = GetSeasonMask(obs, mmod, 0, 1)
+
+
+        """
+
     print('Process on mask Seasonal ' + 'No.' + str(site_id) + '!')
     odata, ot, otb = CycleReshape(obs, cycle_length=365.)
 
@@ -155,8 +261,43 @@ def GetSeasonMask(obs, mmod, site_id, season_kind):
     return obs2, mmod2
 
 def binPlot(X, Y, label=None, ax=None, numBins=8, xmin=None, xmax=None, c=None):
+    """
+    Adopted from  http://peterthomasweir.blogspot.com/2012/10/plot-binned-mean-and-mean-plusminus-std.html
 
-    '''  Adopted from  http://peterthomasweir.blogspot.com/2012/10/plot-binned-mean-and-mean-plusminus-std.html '''
+    Plot the bins of obs and mod, with the default number of bins being set as numBins.
+
+    Parameters
+    ----------
+    X : numpy.array
+        Observations data needs to be processed
+    Y : numpy.array
+        Models in a list to be processed
+    label: string
+        the label to highlight observations and models
+    site_id: int
+        The name of the site to be processed ()
+    ax: fig. subplot()
+        the subplot needed to be plot
+    numBins: int
+        numbers of bins needed to be considered
+    xmin: optional
+        minimal of x
+    xmax: optional
+        maximal  of x
+    c: string, color
+        the color to plot mod
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    >>> binPlot(x1, x2, label='Observed', ax=ax0, numBins=15)
+
+
+         """
+
     if xmin is None:
         xmin = X.min()
     if xmax is None:
@@ -173,7 +314,24 @@ def binPlot(X, Y, label=None, ax=None, numBins=8, xmin=None, xmax=None, c=None):
         ax.errorbar(xx, yy, yerr=yystd, fmt='o', elinewidth=2, capthick=1, capsize=4, color=c)
 
 def detrend_corr(C):
-    # This function caculates the detrend correlation between pairs of variables in C
+    """
+    This function caculates the detrend correlation between pairs of variables in C
+
+    Parameters
+    ----------
+    C : numpy.array with dimensions as data X variable.len
+
+
+    Returns
+    -------
+    P_corr: numpy.array variable.len X variable.len
+
+    Examples
+    --------
+    >>> detrend_corr(C)
+
+
+         """
     # C = np.column_stack([C, np.ones(C.shape[0])])
     p = C.shape[1]
     P_corr = np.zeros((p, p), dtype=np.float)
@@ -192,6 +350,30 @@ def detrend_corr(C):
     return P_corr
 
 def correlation_matrix(datas):
+    """
+    This function caculates the detrend correlation between pairs of variables in C
+
+    Parameters
+    ----------
+    datas : numpy.array with dimensions as data X variable.len
+
+
+    Returns
+    -------
+    corr: numpy.array
+
+        variable.len X variable.len
+
+    mask: numpy.array
+
+        variable.len X variable.len
+
+    Examples
+    --------
+    >>> correlation_matrix(datas)
+
+
+         """
     frame = pd.DataFrame(datas)
     A = frame.corr(method='pearson', min_periods=1)
     corr = np.ma.corrcoef(A)
@@ -201,6 +383,42 @@ def correlation_matrix(datas):
     return corr, mask
 
 def Plot_TimeSeries(obs, mmod, site_id, col_num=0, site_name = None, score = None):
+    """
+    This function plot the time series figure with observation and models
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the basic time plot
+
+     figLegend: legends of the basic time plot
+
+     Examples
+     --------
+     >>> Plot_TimeSeries(obs1, mod1_1, siteid, col_num=modnumber-1, site_name=region, score = self.score)
+
+
+          """
 
     print('Process on TimeSeries ' + 'No.' + str(site_id) + '!')
     x = np.ma.masked_invalid(obs.data[:, site_id])
@@ -259,6 +477,44 @@ def Plot_TimeSeries(obs, mmod, site_id, col_num=0, site_name = None, score = Non
     return fig0, figLegend
 
 def Plot_TimeSeries_cycle(obs, mmod, site_id, cycle_length, col_num=0, site_name = None, score = None):
+    """
+    This function plot the different cycle figure with observation and models with four basic groups being set: day, monthly, seasonly, yearly
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    cycle_length: float
+
+        The number of days need to input as the length of the cycle
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the basic time plot
+
+     Examples
+     --------
+     >>> Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 1., col_num=modnumber-1, site_name=region, score = self.score)
+
+
+          """
 
     if 'h' in obs.unit:
         if cycle_length ==1.0:
@@ -329,6 +585,47 @@ def Plot_TimeSeries_cycle(obs, mmod, site_id, cycle_length, col_num=0, site_name
     return fig0
 
 def Plot_TimeSeries_cycle_season(obs, mmod, site_id, cycle_length, col_num=0, s=1, site_name = None, score = None):
+    """
+    This function plot the different cycle figure with observation and models with different season
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    cycle_length: float
+
+        The number of days need to input as the length of the cycle
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    s: int
+        the number of the season, s=1 denotes DJF; s=2 denotes MAM; s=3 denotes JJA; s=4 denotes SON
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the basic time plot
+
+     Examples
+     --------
+     >>> Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 1., col_num=modnumber-1, s=1, site_name=region, score = self.score)
+
+
+          """
     if 'h' in obs.unit:
         if cycle_length ==1.0:
             obs0 = Variable(name=obs.name, unit=obs.unit.replace("h", "d"), time=obs.time, data=obs.data *24)
@@ -386,8 +683,49 @@ def Plot_TimeSeries_cycle_season(obs, mmod, site_id, cycle_length, col_num=0, s=
     fig0.tight_layout(rect=[0, 0.01, 1, 0.97])
     return fig0
 
-def Plot_TimeSeries_cycle_reshape(obs, mmod, site_id, cycle_length,xname="Hours of a day", col_num=0, site_name = None, score = None):
+def Plot_TimeSeries_cycle_reshape(obs, mmod, site_id, cycle_length, xname="Hours of a day", col_num=0, site_name = None, score = None):
+    """
+    This function plot the different cycles figure with observation and models within the categories, e.g. Hours of a day
 
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    cycle_length: float
+
+        The number of days need to input as the length of the cycle
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    xname: string
+
+        the xlabel of the x-axis
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the basic time plot
+
+     Examples
+     --------
+     >>> Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 1., col_num=modnumber-1, site_name=region, score = self.score)
+
+
+          """
     print('Process on Cycle Means Reshape ' + 'No.' + str(site_id) + '!')
     odata, ot, otb = CycleReshape(obs, cycle_length=cycle_length)
     x = odata[:, :, site_id]
@@ -451,7 +789,51 @@ def Plot_TimeSeries_cycle_reshape(obs, mmod, site_id, cycle_length,xname="Hours 
     return fig0
 
 def Plot_TimeSeries_cycle_reshape_season(obs, mmod, site_id, cycle_length, xname="Hours of a day", col_num=0,s=1, site_name = None, score = None):
+    """
+    This function plot the different cycle figure with observation and models with different season
 
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    cycle_length: float
+
+        The number of days need to input as the length of the cycle
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    xname: string
+
+        x_label of x axis
+
+    s: int
+        the number of the season, s=1 denotes DJF; s=2 denotes MAM; s=3 denotes JJA; s=4 denotes SON
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the basic time plot
+
+     Examples
+     --------
+     >>> Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 1., xname='hour of a day',col_num=modnumber-1, s=1, site_name=region, score = self.score)
+
+
+          """
     print('Process on Cycle Means Reshape ' + 'No.' + str(site_id) + '!')
     odata, ot, otb = CycleReshape(obs, cycle_length=cycle_length)
     x = odata[:, :, site_id]
@@ -503,6 +885,40 @@ def Plot_TimeSeries_cycle_reshape_season(obs, mmod, site_id, cycle_length, xname
     return fig0
 
 def Plot_TimeSeries_TaylorGram(obs, mmod, site_id, col_num=0, site_name = None, score = None):
+    """
+    This function plot the taylor gram for the models with the reference of observation in time series with three groups
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the basic time plot
+
+     Examples
+     --------
+     >>> Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 1., xname='hour of a day',col_num=modnumber-1, s=1, site_name=region, score = self.score)
+
+
+          """
     print('Process on TimeSeries Taylor Grams ' + 'No.' + str(site_id) + '!')
     odata1, ot, otb = CycleReshape(obs, cycle_length=1)
     x1 = np.ma.masked_invalid(odata1[:, :, site_id])
@@ -539,6 +955,40 @@ def Plot_TimeSeries_TaylorGram(obs, mmod, site_id, col_num=0, site_name = None, 
     return fig0
 
 def Plot_TimeSeries_TaylorGram_annual(obs, mmod, site_id, col_num=0, site_name = None, score = None):
+    """
+    This function plot the taylor gram for the models with the reference of observation for yearly data with five groups
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the basic time plot
+
+     Examples
+     --------
+     >>> Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 1., xname='hour of a day',col_num=modnumber-1, s=1, site_name=region, score = self.score)
+
+
+          """
     print('Process on TimeSeries Taylor Grams ' + 'No.' + str(site_id) + '!')
     obs1, mmod1 = GetSeasonMask(obs, mmod, site_id, 1)
     odata1, ot, otb = CycleReshape(obs1, cycle_length=365)
@@ -609,6 +1059,40 @@ def Plot_TimeSeries_TaylorGram_annual(obs, mmod, site_id, col_num=0, site_name =
     return fig0
 
 def Plot_TimeSeries_TaylorGram_hourofday(obs, mmod, site_id, col_num=0, site_name = None, score = None):
+    """
+    This function plot the taylor gram for the models with the reference of observation with five groups
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the basic time plot
+
+     Examples
+     --------
+     >>> Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 1., xname='hour of a day',col_num=modnumber-1, s=1, site_name=region, score = self.score)
+
+
+          """
     print('Process on TimeSeries Taylor Grams ' + 'No.' + str(site_id) + '!')
     obs1, mmod1 = GetSeasonMask(obs, mmod, site_id, 1)
     odata1, ot, otb = CycleReshape(obs1, cycle_length=1)
@@ -678,6 +1162,40 @@ def Plot_TimeSeries_TaylorGram_hourofday(obs, mmod, site_id, col_num=0, site_nam
     return fig0
 
 def Plot_TimeSeries_TaylorGram_cycles(obs, mmod, site_id, col_num=0, site_name = None, score = None):
+    """
+    This function plot the taylor gram for the models with the reference of observation with three groups
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the basic time plot
+
+     Examples
+     --------
+     >>> Plot_TimeSeries_cycle(obs1, mod1_1, siteid, 1., xname='hour of a day',col_num=modnumber-1, s=1, site_name=region, score = self.score)
+
+
+          """
     print('Process on TimeSeries Taylor Grams ' + 'No.' + str(site_id) + '!')
     odata01, ot, otb = CycleReshape(obs, cycle_length=1.)
     obs1_1 = Variable(name=obs.name,unit=obs.unit, time=ot,data=np.mean(odata01, axis=1))
@@ -734,6 +1252,40 @@ def Plot_TimeSeries_TaylorGram_cycles(obs, mmod, site_id, col_num=0, site_name =
     return fig0
 
 def Plot_PDF_CDF(obs,mmod,site_id, col_num=0, site_name = None, score = None):
+    """
+    This function plot the PDF and CDF for the models
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the PDF and CDF
+
+     Examples
+     --------
+     >>> Plot_PDF_CDF(obs,mmod,site_id, col_num=0, site_name = None, score = None)
+
+
+          """
     print('Process on PDF&CDF ' + 'No.' + str(site_id) + '!')
     x = np.ma.masked_invalid(obs.data[:, site_id])
     t = obs.time
@@ -773,6 +1325,40 @@ def Plot_PDF_CDF(obs,mmod,site_id, col_num=0, site_name = None, score = None):
     return fig0
 
 def Plot_PDF_CDF_one_mod_seasonal(obs,mmod,site_id, col_num=0, site_name = None, score = None):
+    """
+    This function plot the PDF and CDF for one model
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    mmod : list of ilamb.variable
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the PDF and CDF
+
+     Examples
+     --------
+     >>> Plot_PDF_CDF_one_mod_seasonal(obs,mmod,site_id, col_num=0, site_name = None, score = None)
+
+
+          """
     print('Process on PDF&CDF ' + 'No.' + str(site_id) + '!')
     x = np.ma.masked_invalid(obs.data[:, site_id])
     t = obs.time
@@ -804,6 +1390,48 @@ def Plot_PDF_CDF_one_mod_seasonal(obs,mmod,site_id, col_num=0, site_name = None,
     return fig0
 
 def Plot_Wavelet(obs, obst, site_id, unit, model_name='Obs', col_num=0, site_name = None, score = None):
+    """
+    This function plot the Wavelet analysis for one dataset, e.g. obs, or one model
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    obst: ilmab.variable.time
+
+    site_id: int
+
+    unit: string
+
+        Unit of the variable
+
+    model_name: string
+
+        The name of the dataset needs to be shown in the figure
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the wavelet
+
+     Examples
+     --------
+     >>> Plot_Wavelet(obs,obs.time,site_id, obs.unit, col_num=0, site_name = None, score = None)
+
+
+          """
     print('Process on Wavelet ' + 'No.' + str(site_id) + '!')
     data = np.ma.masked_invalid(obs.data[:, site_id])
     time_data = obst[~data.mask]
@@ -826,6 +1454,44 @@ def Plot_Wavelet(obs, obst, site_id, unit, model_name='Obs', col_num=0, site_nam
     return fig3
 
 def Plot_IMF_one_mod(obs, ot, mmod, mt, site_id, col_num=0, site_name = None, score = None):
+    """
+    This function plot the Wavelet analysis for one dataset, e.g. obs, or one model
+
+    Parameters
+    ----------
+    obs : ilamb.variable
+
+    ot: ilmab.variable.time
+
+    mmod: list of models (ilamb.variable)
+
+    mt: ilmab.variable.time
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the IMF
+
+     Examples
+     --------
+     >>> Plot_IMF_one_mod(obs, ot, mmod, mt, site_id, col_num=0, site_name = None, score = None)
+
+
+          """
     print('Process on Decomposer_IMF_' + str(site_id) + '!')
     data0 = np.ma.masked_invalid(obs.data[:, site_id])
     data0 = np.ma.masked_where(data0==0.00, data0)
@@ -920,6 +1586,47 @@ def Plot_IMF_one_mod(obs, ot, mmod, mt, site_id, col_num=0, site_name = None, sc
 
 
 def Plot_response2(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None, s=None, score = None):
+    """
+    This function plot the time series for two variables, obs1, obs2
+
+    Parameters
+    ----------
+    obs1 : ilamb.variable
+
+    mod1: list of models (ilamb.variable)
+
+    obs2 : ilamb.variable
+
+    mod2: list of models (ilamb.variable)
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    s: int
+        the number of the season, s=1 denotes DJF; s=2 denotes MAM; s=3 denotes JJA; s=4 denotes SON
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the IMF
+
+     Examples
+     --------
+     >>> Plot_response2(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None, s=None, score = None)
+
+
+          """
     print('Process on Response ' + 'No.' + str(site_id) + '!')
     x1 = np.ma.masked_invalid(obs1.data[:, site_id])
     x2 = np.ma.masked_invalid(obs2.data[:, site_id])
@@ -953,6 +1660,48 @@ def Plot_response2(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None,
     return fig0
 
 def Plot_response2_error(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None, s=None, score = None):
+    """
+    This function plot the time series for two variables, obs1, obs2 errorbar
+
+    Parameters
+    ----------
+    obs1 : ilamb.variable
+
+    mod1: list of models (ilamb.variable)
+
+    obs2 : ilamb.variable
+
+    mod2: list of models (ilamb.variable)
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    s: int
+        the number of the season, s=1 denotes DJF; s=2 denotes MAM; s=3 denotes JJA; s=4 denotes SON
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the IMF
+
+     Examples
+     --------
+     >>> Plot_response2(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None, s=None, score = None)
+
+
+          """
+
     print('Process on Response ' + 'No.' + str(site_id) + '!')
     x1= np.ma.masked_invalid(obs1.data[:, site_id])
     x2 = np.ma.masked_invalid(obs2.data[:, site_id])
@@ -985,6 +1734,55 @@ def Plot_response2_error(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name =
     return fig0
 
 def Plot_response4(obs1, mod1, obs2, mod2, obs3, mod3, obs4, mod4, site_id, col_num=0, site_name=None, s=None, score = None):
+    """
+    This function plot the time series for four variables, obs1, obs2, obs3, obs4
+
+    Parameters
+    ----------
+    obs1 : ilamb.variable
+
+    mod1: list of models (ilamb.variable)
+
+    obs2 : ilamb.variable
+
+    mod2: list of models (ilamb.variable)
+
+    obs3 : ilamb.variable
+
+    mod3: list of models (ilamb.variable)
+
+    obs4 : ilamb.variable
+
+    mod4: list of models (ilamb.variable)
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    s: int
+        the number of the season, s=1 denotes DJF; s=2 denotes MAM; s=3 denotes JJA; s=4 denotes SON
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the IMF
+
+     Examples
+     --------
+     >>> Plot_response4(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None, s=None, score = None)
+
+
+          """
     print('Process on Response4 ' + 'No.' + str(site_id) + '!')
     x1 = np.ma.masked_invalid(obs1.data[:, site_id])
     x1 = np.ma.masked_where(x1 == 0, x1)
@@ -1052,42 +1850,41 @@ def Plot_response4(obs1, mod1, obs2, mod2, obs3, mod3, obs4, mod4, site_id, col_
     plt.tight_layout()
     return fig0
 
-def correlation_matrix(datas):
-    frame = pd.DataFrame(datas)
-    A = frame.corr(method='pearson', min_periods=1)
-    corr = np.ma.corrcoef(A)
-    mask = np.zeros_like(A)
-    mask[np.triu_indices_from(mask)] = True
-
-    return corr, mask
+# def correlation_matrix(datas):
+#     frame = pd.DataFrame(datas)
+#     A = frame.corr(method='pearson', min_periods=1)
+#     corr = np.ma.corrcoef(A)
+#     mask = np.zeros_like(A)
+#     mask[np.triu_indices_from(mask)] = True
+#
+#     return corr, mask
 
 def partial_corr(C):
-#     """
-    #     Returns the sample linear partial correlation coefficients between pairs of variables in C, controlling
-    #     for the remaining variables in C.
-    #     Parameters
-    #     ----------
-    #     C : array-like, shape (n, p)
-    #         Array with the different variables. Each column of C is taken as a variable
-    #     Returns
-    #     -------
-    #     P : array-like, shape (p, p)
-    #         P[i, j] contains the partial correlation of C[:, i] and C[:, j] controlling
-    #         for the remaining variables in C.
+    """
+    Partial Correlation in Python (clone of Matlab's partialcorr)
+    This uses the linear regression approach to compute the partial
+    correlation (might be slow for a huge number of variables).The code is adopted from
+    https://gist.github.com/fabianp/9396204419c7b638d38f
+    Date: Nov 2014
+    Author: Fabian Pedregosa-Izquierdo, f@bianp.net
+    Testing: Valentina Borghesani, valentinaborghesani@gmail.com
 
-#     """
-    # """
-    # Partial Correlation in Python (clone of Matlab's partialcorr)
-    # This uses the linear regression approach to compute the partial
-    # correlation (might be slow for a huge number of variables).The code is adopted from
-    # https://gist.github.com/fabianp/9396204419c7b638d38f
-    # Date: Nov 2014
-    # Author: Fabian Pedregosa-Izquierdo, f@bianp.net
-    # Testing: Valentina Borghesani, valentinaborghesani@gmail.com
-    # """
+
+    Returns the sample linear partial correlation coefficients between pairs of variables in C, controlling
+    for the remaining variables in C.
+    Parameters
+    ----------
+    C : array-like, shape (n, p)
+        Array with the different variables. Each column of C is taken as a variable
+    Returns
+    -------
+    P : array-like, shape (p, p)
+        P[i, j] contains the partial correlation of C[:, i] and C[:, j] controlling
+        for the remaining variables in C.
+
+    """
 
     C = np.column_stack([C, np.ones(C.shape[0])])
-
     p = C.shape[1]
     P_corr = np.zeros((p, p), dtype=np.float)
     for i in range(p):
@@ -1107,6 +1904,55 @@ def partial_corr(C):
     return P_corr[0:C.shape[1] - 1, 0:C.shape[1] - 1]
 
 def plot_4_variable_corr(obs1, mod1_1, obs2, mod2_1, obs3, mod3_1, obs4, mod4_1, site_id, col_num=0, site_name = None, score = None):
+    """
+    This function plot the correlations for four variables, obs1, obs2, obs3, obs4
+
+    Parameters
+    ----------
+    obs1 : ilamb.variable
+
+    mod1: list of models (ilamb.variable)
+
+    obs2 : ilamb.variable
+
+    mod2: list of models (ilamb.variable)
+
+    obs3 : ilamb.variable
+
+    mod3: list of models (ilamb.variable)
+
+    obs4 : ilamb.variable
+
+    mod4: list of models (ilamb.variable)
+
+    site_id: int
+
+    col_num: the number of models
+
+        We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+    site_name: string
+
+        This is the suptiltle of the figure
+
+    s: int
+        the number of the season, s=1 denotes DJF; s=2 denotes MAM; s=3 denotes JJA; s=4 denotes SON
+
+    score: dictionary
+
+        This dictionary is used to return the score of this categoriy.
+
+
+     Returns
+     -------
+     fig0: figure of the IMF
+
+     Examples
+     --------
+     >>> plot_4_variable_corr(obs1, mod1, obs2, mod2, site_id, col_num=0, site_name = None, s=None, score = None)
+
+
+          """
     print('Process on Corr4 ' + 'No.' + str(site_id) + '!')
     x1 = np.ma.masked_invalid(obs1.data[:, site_id])
     x1 = np.ma.masked_where(x1 == 0, x1)
@@ -1168,6 +2014,43 @@ def plot_4_variable_corr(obs1, mod1_1, obs2, mod2_1, obs3, mod3_1, obs4, mod4_1,
     return fig0
 
 def plot_variable_matrix_trend_and_detrend(data, dtrend_data, variable_list, col_num=0, site_name = None, score = None):
+    """
+     This function plot the colorful matrix
+
+     Parameters
+     ----------
+     data : np.array
+
+     dtrend_data: np.array
+
+     variable_list: list of variable names
+
+     col_num: the number of models
+
+         We set -1 as models and col_num>=1 as the number of the model and use col to set same color for same model
+
+     site_name: string
+
+         This is the suptiltle of the figure
+
+     s: int
+         the number of the season, s=1 denotes DJF; s=2 denotes MAM; s=3 denotes JJA; s=4 denotes SON
+
+     score: dictionary
+
+         This dictionary is used to return the score of this categoriy.
+
+
+      Returns
+      -------
+      fig0: figure of the IMF
+
+      Examples
+      --------
+      >>> plot_variable_matrix_trend_and_detrend(data, dtrend_data, variable_list, col_num=0, site_name = None, score = None)
+
+
+           """
     fig, axes = plt.subplots(len(variable_list), len(variable_list), sharex=True, sharey=True,
                              figsize=(6, 6))
     fig.subplots_adjust(wspace=0.03, hspace=0.03)

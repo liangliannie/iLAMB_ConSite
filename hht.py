@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 from matplotlib.ticker import FuncFormatter
+from PyEMD import EEMD
+
 col = ['plum', 'darkorchid', 'blue', 'navy', 'deepskyblue', 'darkcyan', 'seagreen', 'darkgreen',
        'olivedrab', 'gold', 'tan', 'red', 'palevioletred', 'm', 'plum']
 start_year = 1991
@@ -12,15 +14,13 @@ def millions(x, pos):
     'The two args are the value and tick position'
     return '%1.1fY' % (x/365.0)
 
-from PyEMD import EEMD
 
 # col = ['palevioletred', 'm', 'plum', 'darkorchid', 'blue', 'navy', 'deepskyblue', 'darkcyan', 'seagreen', 'darkgreen',
 #        'olivedrab', 'gold', 'tan', 'red']
 
 
 def plot_imfs(signal, imfs, time_samples=None, fig=None, no=1, m=1):
-    ''' Author jaidevd https://github.com/jaidevd/pyhht/blob/dev/pyhht/visualization.py '''
-    '''Original function from pyhht, but without plt.show()'''
+    ''' Author jaidevd https://github.com/jaidevd/pyhht/blob/dev/pyhht/visualization.py Original function from pyhht, but without plt.show()'''
     n_imfs = imfs.shape[0]
     # print(np.abs(imfs[:-1, :]))
     # axis_extent = max(np.max(np.abs(imfs[:-1, :]), axis=0))
