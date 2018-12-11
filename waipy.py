@@ -8,7 +8,6 @@ col = ['plum', 'darkorchid', 'blue', 'navy', 'deepskyblue', 'darkcyan', 'seagree
        'olivedrab', 'gold', 'tan', 'red', 'palevioletred', 'm', 'plum']
 
 "   Author: mabelcalim, Email: mabelcalim@gmail.com  "
-
 """ The waipy.py is adopted from https://github.com/mabelcalim/waipy """
 
 def fft(data):

@@ -5,6 +5,7 @@ import numpy as NP
 import matplotlib.pyplot as PLT
 import matplotlib.pyplot as plt
 import numpy as np
+
 lengendfontsize = 10
 markersize = 12
 dictsize = 8

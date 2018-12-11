@@ -4,70 +4,37 @@
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-      google.load("visualization", "1", {packages:["table"]});
-      google.setOnLoadCallback(MeanStateTable);
-      function MeanStateTable() {
-        var data = new google.visualization.DataTable();
-        data.addColumn('string','Model');
-        data.addColumn('string','Data');
-        data.addColumn('number','<span title="Deviation">Deviation [0-1]</span>');
-        data.addColumn('number','<span title="Correlation">Correlation [0-1]</span>');
-        data.addColumn('number','<span title="MSE">MSE [0-1]</span>');
-        data.addColumn('number','<span title="Frequency">Frequency [0-1]</span>');
-        data.addColumn('number','<span title="Mean">Mean [0-1]</span>');
-        data.addColumn('number','<span title="Bias">Bias [0-1]</span>');
-        data.addColumn('number','<span title="Score">Score [0-1]</span>');
-        data.addColumn('number','<span title="Deviation">Deviation [0-1]</span>');
-        data.addColumn('number','<span title="Correlation">Correlation [0-1]</span>');
-        data.addColumn('number','<span title="MSE">MSE [0-1]</span>');
-        data.addColumn('number','<span title="Frequency">Frequency [0-1]</span>');
-        data.addColumn('number','<span title="Mean">Mean [0-1]</span>');
-        data.addColumn('number','<span title="Bias">Bias [0-1]</span>');
-        data.addColumn('number','<span title="Score">Score [0-1]</span>');
-        data.addColumn('number','<span title="Deviation">Deviation [0-1]</span>');
-        data.addColumn('number','<span title="Correlation">Correlation [0-1]</span>');
-        data.addColumn('number','<span title="MSE">MSE [0-1]</span>');
-        data.addColumn('number','<span title="Frequency">Frequency [0-1]</span>');
-        data.addColumn('number','<span title="Mean">Mean [0-1]</span>');
-        data.addColumn('number','<span title="Bias">Bias [0-1]</span>');
-        data.addColumn('number','<span title="Score">Score [0-1]</span>');
-        data.addColumn('number','<span title="Deviation">Deviation [0-1]</span>');
-        data.addColumn('number','<span title="Correlation">Correlation [0-1]</span>');
-        data.addColumn('number','<span title="MSE">MSE [0-1]</span>');
-        data.addColumn('number','<span title="Frequency">Frequency [0-1]</span>');
-        data.addColumn('number','<span title="Mean">Mean [0-1]</span>');
-        data.addColumn('number','<span title="Bias">Bias [0-1]</span>');
-        data.addColumn('number','<span title="Score">Score [0-1]</span>');
-        data.addRows([
-          ['Benchmark','<a href="._Benchmark.nc" download>[-]</a>', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,0.000,0.000,0.000,0.000,0.000,0.000,0.000],
-          ['Model1','<a href="._Model1.nc" download>[-]</a>', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,0.000,0.000,0.000,0.000,0.000,0.000,0.000],
-          ['Model2','<a href="._Model2.nc" download>[-]</a>', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,0.000,0.000,0.000,0.000,0.000,0.000,0.000],
-          ['Models','<a href="._Models.nc" download>[-]</a>', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,0.000,0.000,0.000,0.000,0.000,0.000,0.000],
-        ]);
-        var view  = new google.visualization.DataView(data);
-        var rid   = document.getElementById("MeanStateRegion").selectedIndex
-        view.setColumns([0,1,7*rid+2, 7*rid+3, 7*rid+4, 7*rid+5, 7*rid+6, 7*rid+7, 7*rid+8]);
-        var table = new google.visualization.Table(document.getElementById('MeanState_table'));
-        table.draw(view, {showRowNumber: false,allowHtml: true});
-        function clickRow() {
-          var header = "CNAME / RNAME / MNAME";
-          var CNAME  = ".";
-          header     = header.replace("CNAME",CNAME);
-          var rid    = document.getElementById("MeanStateRegion").selectedIndex;
-          var RNAME  = document.getElementById("MeanStateRegion").options[rid].value;
-          header     = header.replace("RNAME",RNAME);
-          var select = table.getSelection()
-          row = select[0].row;
-          if (row == 0) {
-            table.setSelection([{'row': 1}]);
-            clickRow();
-            return;
-          }
-          var MNAME  = data.getValue(row,0);
-          header     = header.replace("MNAME",MNAME);
-          $("#MeanStateHead").text(header);
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.16.5/math.min.js"></script>
+    <script>
+        function getQueryVariable(variable) {
+	    var query = window.location.search.substring(1);
+	    var vars = query.split("&");
+	    for (var i=0;i<vars.length;i++) {
+		var pair = vars[i].split("=");
+		if(pair[0] == variable){return pair[1];}
+	    }
+	    return(false);
+	}
+    </script>
+    <script type='text/javascript'>
+        function pageLoad() {
+           pageLoadMeanState();
+        }
+    </script>
+    <script type='text/javascript'>
+
+        function updateImagesAndHeadersMeanState(){
+            var rsel  = document.getElementById("MeanStateRegion");
+            var msel  = document.getElementById("MeanStateModel");
+            var rid   = rsel.selectedIndex;
+            var mid   = msel.selectedIndex;
+            var RNAME = rsel.options[rid].value;
+            var MNAME = msel.options[mid].value;
+            var CNAME = ".";
+            var head  = "CNAME / RNAME / MNAME";
+            head      = head.replace("CNAME",CNAME).replace("RNAME",RNAME).replace("MNAME",MNAME);
+            $("#MeanStateHead").text(head);
+            
           document.getElementById('(Time Series)Legend').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_legend.png'
           document.getElementById('(Time Series)Hourly').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_hourly.png'
           document.getElementById('(Time Series)Daily').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_timeseries_daily.png'
@@ -112,340 +79,677 @@
           document.getElementById('(Correlations)Correlations').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_corr4.png'
           document.getElementById('(Correlations)Correlations_box').src =  '/Users/lli51/Documents/ILAMB_sample/test_output/' + MNAME + '_' + RNAME + '_correlation_box.png'
         }
-        google.visualization.events.addListener(table, 'select', clickRow);
-      table.setSelection([{'row': 0}]);
-      clickRow();
-      }
-    </script>
-    <script type="text/javascript">
-      function AllSelect() {
-        var header = "CNAME / RNAME";
-        var CNAME  = ".";
-        header     = header.replace("CNAME",CNAME);
-        var rid    = document.getElementById("AllModelsRegion").selectedIndex;
-        var RNAME  = document.getElementById("AllModelsRegion").options[rid].value;
-        var pid    = document.getElementById("AllModelsPlot").selectedIndex;
-        var PNAME  = document.getElementById("AllModelsPlot").options[pid].value;
-        header     = header.replace("RNAME",RNAME);
-        $("#AllModelsHead").text(header);
-        if(PNAME == "(Time Series)Legend" || PNAME == "(Time Series)Hourly" || PNAME == "(Time Series)Daily" || PNAME == "(Time Series)Monthly" || PNAME == "(Time Series)Seasonly" || PNAME == "(Time Series)Taylor" || PNAME == "(Time Series)Yearly" || PNAME == "(Time Series)Season 1" || PNAME == "(Time Series)Season 2" || PNAME == "(Time Series)Season 3" || PNAME == "(Time Series)Season 4" || PNAME == "(Time Series)TaylorAnnual" || PNAME == "(Cycle 1)Time Series" || PNAME == "(Cycle 2)Time Series" || PNAME == "(Cycle 3)Time Series" || PNAME == "(Cycle 4)Time Series" || PNAME == "Time Series" || PNAME == "Season 1" || PNAME == "Season 2" || PNAME == "Season 3" || PNAME == "Season 4" || PNAME == "Taylor Graph" || PNAME == "(PDF & CDF)PDF & CDF" || PNAME == "(Wavelet)Wavelet Obs" || PNAME == "(Wavelet)Wavelet Mod0" || PNAME == "(Time Series)Legend2" || PNAME == "(Response)Response" || PNAME == "(Response)Response_error" || PNAME == "(Response)Response(DJF)" || PNAME == "(Response)Response(DJF)1" || PNAME == "(Response)Response(MAM)" || PNAME == "(Response)Response(MAM)2" || PNAME == "(Response)Response(JJA)" || PNAME == "(Response)Response(JJA)2" || PNAME == "(Response)Response(SON)" || PNAME == "(Response)Response(SON)2" || PNAME == "(Response)Response 4 Variable" || PNAME == "(Response)Response 4 Variable(DJF)" || PNAME == "(Response)Response 4 Variable(MAM)" || PNAME == "(Response)Response 4 Variable(JJA)" || PNAME == "(Response)Response 4 Variable(SON)" || PNAME == "(Correlations)Correlations" || PNAME == "(Correlations)Correlations_box"){
-          document.getElementById("Benchmark_div").style.display = 'none'
-        }else{
-          document.getElementById("Benchmark_div").style.display = 'block'
-          document.getElementById('Benchmark').src = 'Benchmark_' + RNAME + '_' + PNAME + '.png'
-        }
-        document.getElementById('legend').src = 'legend_' + PNAME + '.png'
-        document.getElementById('Benchmark').src = 'Benchmark_' + RNAME + '_' + PNAME + '.png'
-        document.getElementById('Model1').src = 'Model1_' + RNAME + '_' + PNAME + '.png'
-        document.getElementById('Model2').src = 'Model2_' + RNAME + '_' + PNAME + '.png'
-        document.getElementById('Models').src = 'Models_' + RNAME + '_' + PNAME + '.png'
-      }
-    </script>
-    
-    <script>
-      $(document).on('pageshow', '[data-role="page"]', function(){ 
-        AllSelect()
-      });
+
+	function highlightRowMeanState(cell) {
+	    var select = document.getElementById("MeanStateRegion");
+	    for (var i = 0; i < select.length; i++){
+		var table = document.getElementById("MeanState_table_" + select.options[i].value);
+		var rows  = table.getElementsByTagName("tr");
+		for (var r = 2; r < rows.length; r++) {
+        	    for (var c = 0; c < rows[r].cells.length-9; c++) {
+        		rows[r].cells[c].style.backgroundColor = "#ffffff";
+        	    }
+		}
+		var r = cell.closest("tr").rowIndex;
+                document.getElementById("MeanStateModel").selectedIndex = r-1;
+		for (var c = 0; c < rows[r].cells.length-9; c++) {
+        	    rows[r].cells[c].style.backgroundColor = "#c1c1c1";
+		}
+	    }
+            updateImagesAndHeadersMeanState();
+	}
+
+        function paintScoreCellsMeanState(RNAME) {
+	    var colors = ['#fb6a4a','#fc9272','#fcbba1','#fee0d2','#fff5f0','#f7fcf5','#e5f5e0','#c7e9c0','#a1d99b','#74c476'];
+            var table  = document.getElementById("MeanState_table_" + RNAME);
+            var rows   = table.getElementsByTagName("tr");
+            for (var c = rows[0].cells.length-8; c < rows[0].cells.length; c++) {		
+		var scores = [];
+		for (var r = 2; r < rows.length; r++) {
+                    val = rows[r].cells[c].innerHTML;
+                    if (val=="") {
+      		      scores[r-2] = 0;
+                    }else{
+		      scores[r-2] = parseFloat(val);
+                    }
+		}
+		var mean = math.mean(scores);
+		var std  = math.max(0.02,math.std(scores));
+		for (var r = 2; r < rows.length; r++) {
+		    scores[r-2] = (scores[r-2]-mean)/std;
+		}
+		var smax = math.max(scores);
+		var smin = math.min(scores);
+                if (math.abs(smax-smin) < 1e-12) {
+		    smin = -1.0;
+		    smax =  1.0;
+		}
+		for (var r = 2; r < rows.length; r++) {
+		    var clr = math.round((scores[r-2]-smin)/(smax-smin)*10);
+		    clr     = math.min(9,math.max(0,clr));
+		    rows[r].cells[c].style.backgroundColor = colors[clr];
+		}
+	    }
+	}
+
+	function pageLoadMeanState() {
+	    var select = document.getElementById("MeanStateRegion");
+	    var region = getQueryVariable("region");
+	    var model  = getQueryVariable("model");
+	    if (region) {
+		for (var i = 0; i < select.length; i++){
+		    if (select.options[i].value == region) select.selectedIndex = i;
+		}
+	    }
+	    var table = document.getElementById("MeanState_table_" + select.options[select.selectedIndex].value);
+	    var rows  = table.getElementsByTagName("tr");
+	    if (model) {
+		for (var r = 0; r < rows.length; r++) {
+		    if(rows[r].cells[0].innerHTML==model) highlightRowMeanState(rows[r].cells[0]);
+		}
+	    }else{
+		highlightRowMeanState(rows[2]);
+	    }
+	    for (var i = 0; i < select.length; i++){
+		paintScoreCellsMeanState(select.options[i].value);
+	    }
+	    changeRegionMeanState();
+	}
+
+        function changeRegionMeanState() {
+	    var select = document.getElementById("MeanStateRegion");
+	    for (var i = 0; i < select.length; i++){
+		RNAME = select.options[i].value;
+		if (i == select.selectedIndex) {
+		    document.getElementById("MeanState_table_" + RNAME).style.display = "table";
+		}else{
+		    document.getElementById("MeanState_table_" + RNAME).style.display = "none";
+		}		
+	    }
+            updateImagesAndHeadersMeanState();
+	}
     </script>
     <style type="text/css">
-    
-    .thumbnail:hover {
-    position:relative;
-    width:1200px;
-    height:auto;
-    display:block;
-    z-index:999;
-    margin : auto;
-}
-
-      .outer {
-             width: 40px;
-          position: relative;
-           display: inline-block;
-            margin: 0 15px;
+      .container{
+        display:inline;
       }
-      .benchmark {
-          position: relative;
-           display: inline-block;
-            margin: 0 15px;
+      .child{
+        margin-bottom:10px;
+        display:inline-block;
+        padding:5px;
+        font-size: 20px;
+        font-weight: bold;
+      }   
+      table.table-header-rotated {
+          border-collapse: collapse;
       }
-      .inner {
-         font-size: 20px;
-       font-weight: bold;
-          position: absolute;
-               top: 50%;
-              left: 50%;
+      td {
+          width: 30px;
+          text-align: center;
+          padding: 10px 5px;
+          border: 1px solid #ccc;
       }
-            .second {
-         font-size: 20px;
-       font-weight: bold;
-          position: relative;
-              left: 40px;
+      th {
+          padding: 5px 10px;
       }
-      .rotate {
-           -moz-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
-        -webkit-transform: translateX(-50%) translateY(-50%) rotate(-90deg);
-                transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+      th.rotate {
+          height: 280px;
+          white-space: nowrap;    
+      }
+      th.rotate > div {
+          transform: translate(10px, 135px) rotate(-45deg);
+          width: 0px;
+      }
+      th.rotate > div > span {
+      }
+      th.row-header {
+          padding: 0px 10px;
+          text-align: right;
+      }
+      td.divider {
+          width: 0px;
+          border: 0px solid #ccc;
+          padding: 0px 0px
       }
     </style>
   </head>
-  <body>
-       <div data-role="page" id="MeanState">
+  <body onload="pageLoad()">
+    <div data-role="page" id="MeanState">
       <div data-role="header" data-position="fixed" data-tap-toggle="false">
         <h1 id="MeanStateHead">Mean State</h1>
         <div data-role="navbar">
 	  <ul>
             <li><a href='#MeanState' class=ui-btn-active ui-state-persist>Mean State</a></li>
-            <li><a href='#AllModels'>All Models</a></li>
             <li><a href='#DataInformation'>Data Information</a></li>
 	  </ul>
 	</div>
       </div>
-      <select id="MeanStateRegion" onchange="MeanStateTable()">
+      <select id="MeanStateRegion" onchange="changeRegionMeanState()">
         <option value='0'>0</option>
         <option value='1'>1</option>
         <option value='2'>2</option>
         <option value='global' selected="selected">Globe</option>
       </select>
-      <div id="MeanState_table" align="center"></div>
+      <div style="display:none">
+      <select id="MeanStateModel">
+        <option value='Benchmark'>Benchmark</option>
+        <option value='Model1' selected="selected">Model1</option>
+        <option value='Model2'>Model2</option>
+        <option value='Models'>Models</option>
+      </select>
+      </div>
+        <center>
+        <table class="table-header-rotated" id="MeanState_table_0">
+           <thead>
+             <tr>
+               <th></th>
+               <th class="rotate"><div><span>Download Data</span></div></th>
+               <th class="rotate"><div><span>Hellinger [0-1]</span></div></th>
+               <th class="rotate"><div><span>FrequencyMax [Months]</span></div></th>
+               <th class="rotate"><div><span>FrequencyTMax [Months]</span></div></th>
+               <th class="rotate"><div><span>h_var [W/m2^2]</span></div></th>
+               <th class="rotate"><div><span>h_std [0-1]</span></div></th>
+               <th class="rotate"><div><span>Coffcoef [0-1]</span></div></th>
+               <th class="rotate"><div><span>h_mean [W/m2]</span></div></th>
+               <th class="rotate"><div><span>RMSE [0-1]</span></div></th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr>
+               <td class="row-header">Benchmark</td>
+               <td><a href="._Benchmark.nc" download>[-]</a></td>
+               <td></td>
+               <td>14.1</td>
+               <td>11.7</td>
+               <td>1.69e+04</td>
+               <td>130.</td>
+               <td>1.00</td>
+               <td>102.</td>
+               <td></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.11</td>
+               <td onclick="highlightRowMeanState(this)">14.5</td>
+               <td onclick="highlightRowMeanState(this)">11.7</td>
+               <td onclick="highlightRowMeanState(this)">1.92e+04</td>
+               <td onclick="highlightRowMeanState(this)">138.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">12.4</td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.11</td>
+               <td onclick="highlightRowMeanState(this)">14.5</td>
+               <td onclick="highlightRowMeanState(this)">11.7</td>
+               <td onclick="highlightRowMeanState(this)">1.92e+04</td>
+               <td onclick="highlightRowMeanState(this)">138.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">12.4</td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.11</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)">1.92e+04</td>
+               <td onclick="highlightRowMeanState(this)">138.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">12.4</td>
+             </tr>
+          </tbody>
+        </table>
+        </center>
+        <center>
+        <table class="table-header-rotated" id="MeanState_table_1">
+           <thead>
+             <tr>
+               <th></th>
+               <th class="rotate"><div><span>Download Data</span></div></th>
+               <th class="rotate"><div><span>Hellinger [0-1]</span></div></th>
+               <th class="rotate"><div><span>FrequencyMax [Months]</span></div></th>
+               <th class="rotate"><div><span>FrequencyTMax [Months]</span></div></th>
+               <th class="rotate"><div><span>h_var [W/m2^2]</span></div></th>
+               <th class="rotate"><div><span>h_std [0-1]</span></div></th>
+               <th class="rotate"><div><span>Coffcoef [0-1]</span></div></th>
+               <th class="rotate"><div><span>h_mean [W/m2]</span></div></th>
+               <th class="rotate"><div><span>RMSE [0-1]</span></div></th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr>
+               <td class="row-header">Benchmark</td>
+               <td><a href="._Benchmark.nc" download>[-]</a></td>
+               <td></td>
+               <td>14.1</td>
+               <td>11.7</td>
+               <td>1.69e+04</td>
+               <td>130.</td>
+               <td>1.00</td>
+               <td>102.</td>
+               <td></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.18</td>
+               <td onclick="highlightRowMeanState(this)">14.5</td>
+               <td onclick="highlightRowMeanState(this)">11.7</td>
+               <td onclick="highlightRowMeanState(this)">1.93e+04</td>
+               <td onclick="highlightRowMeanState(this)">139.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">12.8</td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.18</td>
+               <td onclick="highlightRowMeanState(this)">14.5</td>
+               <td onclick="highlightRowMeanState(this)">11.7</td>
+               <td onclick="highlightRowMeanState(this)">1.93e+04</td>
+               <td onclick="highlightRowMeanState(this)">139.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">12.8</td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.18</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)">1.93e+04</td>
+               <td onclick="highlightRowMeanState(this)">139.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">12.8</td>
+             </tr>
+          </tbody>
+        </table>
+        </center>
+        <center>
+        <table class="table-header-rotated" id="MeanState_table_2">
+           <thead>
+             <tr>
+               <th></th>
+               <th class="rotate"><div><span>Download Data</span></div></th>
+               <th class="rotate"><div><span>Hellinger [0-1]</span></div></th>
+               <th class="rotate"><div><span>FrequencyMax [Months]</span></div></th>
+               <th class="rotate"><div><span>FrequencyTMax [Months]</span></div></th>
+               <th class="rotate"><div><span>h_var [W/m2^2]</span></div></th>
+               <th class="rotate"><div><span>h_std [0-1]</span></div></th>
+               <th class="rotate"><div><span>Coffcoef [0-1]</span></div></th>
+               <th class="rotate"><div><span>h_mean [W/m2]</span></div></th>
+               <th class="rotate"><div><span>RMSE [0-1]</span></div></th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr>
+               <td class="row-header">Benchmark</td>
+               <td><a href="._Benchmark.nc" download>[-]</a></td>
+               <td></td>
+               <td>14.1</td>
+               <td>11.7</td>
+               <td>1.69e+04</td>
+               <td>130.</td>
+               <td>1.00</td>
+               <td>102.</td>
+               <td></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.27</td>
+               <td onclick="highlightRowMeanState(this)">14.5</td>
+               <td onclick="highlightRowMeanState(this)">11.7</td>
+               <td onclick="highlightRowMeanState(this)">1.94e+04</td>
+               <td onclick="highlightRowMeanState(this)">139.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">13.2</td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.27</td>
+               <td onclick="highlightRowMeanState(this)">14.5</td>
+               <td onclick="highlightRowMeanState(this)">11.7</td>
+               <td onclick="highlightRowMeanState(this)">1.94e+04</td>
+               <td onclick="highlightRowMeanState(this)">139.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">13.2</td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.27</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)">1.94e+04</td>
+               <td onclick="highlightRowMeanState(this)">139.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">13.2</td>
+             </tr>
+          </tbody>
+        </table>
+        </center>
+        <center>
+        <table class="table-header-rotated" id="MeanState_table_global">
+           <thead>
+             <tr>
+               <th></th>
+               <th class="rotate"><div><span>Download Data</span></div></th>
+               <th class="rotate"><div><span>Hellinger [0-1]</span></div></th>
+               <th class="rotate"><div><span>FrequencyMax [Months]</span></div></th>
+               <th class="rotate"><div><span>FrequencyTMax [Months]</span></div></th>
+               <th class="rotate"><div><span>h_var [W/m2^2]</span></div></th>
+               <th class="rotate"><div><span>h_std [0-1]</span></div></th>
+               <th class="rotate"><div><span>Coffcoef [0-1]</span></div></th>
+               <th class="rotate"><div><span>h_mean [W/m2]</span></div></th>
+               <th class="rotate"><div><span>RMSE [0-1]</span></div></th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr>
+               <td class="row-header">Benchmark</td>
+               <td><a href="._Benchmark.nc" download>[-]</a></td>
+               <td></td>
+               <td>14.1</td>
+               <td>11.7</td>
+               <td>1.69e+04</td>
+               <td>130.</td>
+               <td>1.00</td>
+               <td>102.</td>
+               <td></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.19</td>
+               <td onclick="highlightRowMeanState(this)">14.5</td>
+               <td onclick="highlightRowMeanState(this)">11.7</td>
+               <td onclick="highlightRowMeanState(this)">1.93e+04</td>
+               <td onclick="highlightRowMeanState(this)">139.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">12.8</td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.19</td>
+               <td onclick="highlightRowMeanState(this)">14.5</td>
+               <td onclick="highlightRowMeanState(this)">11.7</td>
+               <td onclick="highlightRowMeanState(this)">1.93e+04</td>
+               <td onclick="highlightRowMeanState(this)">139.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">12.8</td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)">4.19</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)">1.93e+04</td>
+               <td onclick="highlightRowMeanState(this)">139.</td>
+               <td onclick="highlightRowMeanState(this)">0.591</td>
+               <td onclick="highlightRowMeanState(this)">112.</td>
+               <td onclick="highlightRowMeanState(this)">12.8</td>
+             </tr>
+          </tbody>
+        </table>
+        </center>
         <div data-role="collapsible" data-collapsed="false"><h1>Time series</h1>
-        <div class="outer" id="(Time Series)Legend_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Legend" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Time Series)Hourly_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Hourly" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Time Series)Daily_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Daily" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Time Series)Monthly_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Monthly" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Time Series)Seasonly_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Seasonly" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Time Series)Taylor_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Taylor" alt="Data not available"></img></div>
-        </div><br>
+        <div class="container" id="(Time Series)Legend_div">
+          <div class="child">
+          <img src="" id="(Time Series)Legend" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Time Series)Hourly_div">
+          <div class="child">
+          <img src="" id="(Time Series)Hourly" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Time Series)Daily_div">
+          <div class="child">
+          <img src="" id="(Time Series)Daily" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Time Series)Monthly_div">
+          <div class="child">
+          <img src="" id="(Time Series)Monthly" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Time Series)Seasonly_div">
+          <div class="child">
+          <img src="" id="(Time Series)Seasonly" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Time Series)Taylor_div">
+          <div class="child">
+          <img src="" id="(Time Series)Taylor" alt="Data not available"></img>
+          </div>
+        </div>
         </div>
         <div data-role="collapsible" data-collapsed="false"><h1>Time series(Annually)</h1>
-        <div class="outer" id="(Time Series)Yearly_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Yearly" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Time Series)Season 1_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Season 1" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Time Series)Season 2_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Season 2" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Time Series)Season 3_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Season 3" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Time Series)Season 4_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Season 4" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Time Series)TaylorAnnual_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)TaylorAnnual" alt="Data not available"></img></div>
-        </div><br>
+        <div class="container" id="(Time Series)Yearly_div">
+          <div class="child">
+          <img src="" id="(Time Series)Yearly" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Time Series)Season 1_div">
+          <div class="child">
+          <img src="" id="(Time Series)Season 1" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Time Series)Season 2_div">
+          <div class="child">
+          <img src="" id="(Time Series)Season 2" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Time Series)Season 3_div">
+          <div class="child">
+          <img src="" id="(Time Series)Season 3" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Time Series)Season 4_div">
+          <div class="child">
+          <img src="" id="(Time Series)Season 4" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Time Series)TaylorAnnual_div">
+          <div class="child">
+          <img src="" id="(Time Series)TaylorAnnual" alt="Data not available"></img>
+          </div>
+        </div>
         </div>
         <div data-role="collapsible" data-collapsed="false"><h1>Cycles mean</h1>
-        <div class="outer" id="(Cycle 1)Time Series_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Cycle 1)Time Series" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Cycle 2)Time Series_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Cycle 2)Time Series" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Cycle 3)Time Series_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Cycle 3)Time Series" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Cycle 4)Time Series_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Cycle 4)Time Series" alt="Data not available"></img></div>
-        </div><br>
+        <div class="container" id="(Cycle 1)Time Series_div">
+          <div class="child">
+          <img src="" id="(Cycle 1)Time Series" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Cycle 2)Time Series_div">
+          <div class="child">
+          <img src="" id="(Cycle 2)Time Series" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Cycle 3)Time Series_div">
+          <div class="child">
+          <img src="" id="(Cycle 3)Time Series" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Cycle 4)Time Series_div">
+          <div class="child">
+          <img src="" id="(Cycle 4)Time Series" alt="Data not available"></img>
+          </div>
+        </div>
         </div>
         <div data-role="collapsible" data-collapsed="false"><h1>Cycles mean(seasonly)</h1>
-        <div class="outer" id="Time Series_div">
-              <div class="second"><img class = "thumbnail" src="" id="Time Series" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="Season 1_div">
-              <div class="second"><img class = "thumbnail" src="" id="Season 1" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="Season 2_div">
-              <div class="second"><img class = "thumbnail" src="" id="Season 2" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="Season 3_div">
-              <div class="second"><img class = "thumbnail" src="" id="Season 3" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="Season 4_div">
-              <div class="second"><img class = "thumbnail" src="" id="Season 4" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="Taylor Graph_div">
-              <div class="second"><img class = "thumbnail" src="" id="Taylor Graph" alt="Data not available"></img></div>
-        </div><br>
+        <div class="container" id="Time Series_div">
+          <div class="child">
+          <img src="" id="Time Series" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="Season 1_div">
+          <div class="child">
+          <img src="" id="Season 1" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="Season 2_div">
+          <div class="child">
+          <img src="" id="Season 2" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="Season 3_div">
+          <div class="child">
+          <img src="" id="Season 3" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="Season 4_div">
+          <div class="child">
+          <img src="" id="Season 4" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="Taylor Graph_div">
+          <div class="child">
+          <img src="" id="Taylor Graph" alt="Data not available"></img>
+          </div>
+        </div>
         </div>
         <div data-role="collapsible" data-collapsed="false"><h1>PDF CDF</h1>
-        <div class="outer" id="(PDF & CDF)PDF & CDF_div">
-              <div class="second"><img class = "thumbnail" src="" id="(PDF & CDF)PDF & CDF" alt="Data not available"></img></div>
-        </div><br>
+        <div class="container" id="(PDF & CDF)PDF & CDF_div">
+          <div class="child">
+          <img src="" id="(PDF & CDF)PDF & CDF" alt="Data not available"></img>
+          </div>
+        </div>
         </div>
         <div data-role="collapsible" data-collapsed="false"><h1>Frequency</h1>
-        <div class="outer" id="(Wavelet)Wavelet Obs_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Wavelet)Wavelet Obs" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Wavelet)Wavelet Mod0_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Wavelet)Wavelet Mod0" alt="Data not available"></img></div>
-        </div><br>
+        <div class="container" id="(Wavelet)Wavelet Obs_div">
+          <div class="child">
+          <img src="" id="(Wavelet)Wavelet Obs" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Wavelet)Wavelet Mod0_div">
+          <div class="child">
+          <img src="" id="(Wavelet)Wavelet Mod0" alt="Data not available"></img>
+          </div>
+        </div>
         </div>
         <div data-role="collapsible" data-collapsed="false"><h1>Response two variables</h1>
-        <div class="outer" id="(Time Series)Legend2_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Time Series)Legend2" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response_error_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response_error" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response(DJF)_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(DJF)" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response(DJF)1_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(DJF)1" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response(MAM)_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(MAM)" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response(MAM)2_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(MAM)2" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response(JJA)_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(JJA)" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response(JJA)2_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(JJA)2" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response(SON)_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(SON)" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response(SON)2_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response(SON)2" alt="Data not available"></img></div>
-        </div><br>
+        <div class="container" id="(Time Series)Legend2_div">
+          <div class="child">
+          <img src="" id="(Time Series)Legend2" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response_div">
+          <div class="child">
+          <img src="" id="(Response)Response" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response_error_div">
+          <div class="child">
+          <img src="" id="(Response)Response_error" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response(DJF)_div">
+          <div class="child">
+          <img src="" id="(Response)Response(DJF)" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response(DJF)1_div">
+          <div class="child">
+          <img src="" id="(Response)Response(DJF)1" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response(MAM)_div">
+          <div class="child">
+          <img src="" id="(Response)Response(MAM)" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response(MAM)2_div">
+          <div class="child">
+          <img src="" id="(Response)Response(MAM)2" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response(JJA)_div">
+          <div class="child">
+          <img src="" id="(Response)Response(JJA)" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response(JJA)2_div">
+          <div class="child">
+          <img src="" id="(Response)Response(JJA)2" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response(SON)_div">
+          <div class="child">
+          <img src="" id="(Response)Response(SON)" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response(SON)2_div">
+          <div class="child">
+          <img src="" id="(Response)Response(SON)2" alt="Data not available"></img>
+          </div>
+        </div>
         </div>
         <div data-role="collapsible" data-collapsed="false"><h1>Response four variables</h1>
-        <div class="outer" id="(Response)Response 4 Variable_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response 4 Variable" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response 4 Variable(DJF)_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response 4 Variable(DJF)" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response 4 Variable(MAM)_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response 4 Variable(MAM)" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response 4 Variable(JJA)_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response 4 Variable(JJA)" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Response)Response 4 Variable(SON)_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Response)Response 4 Variable(SON)" alt="Data not available"></img></div>
-        </div><br>
+        <div class="container" id="(Response)Response 4 Variable_div">
+          <div class="child">
+          <img src="" id="(Response)Response 4 Variable" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response 4 Variable(DJF)_div">
+          <div class="child">
+          <img src="" id="(Response)Response 4 Variable(DJF)" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response 4 Variable(MAM)_div">
+          <div class="child">
+          <img src="" id="(Response)Response 4 Variable(MAM)" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response 4 Variable(JJA)_div">
+          <div class="child">
+          <img src="" id="(Response)Response 4 Variable(JJA)" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Response)Response 4 Variable(SON)_div">
+          <div class="child">
+          <img src="" id="(Response)Response 4 Variable(SON)" alt="Data not available"></img>
+          </div>
+        </div>
         </div>
         <div data-role="collapsible" data-collapsed="false"><h1>Correlations</h1>
-        <div class="outer" id="(Correlations)Correlations_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Correlations)Correlations" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="(Correlations)Correlations_box_div">
-              <div class="second"><img class = "thumbnail" src="" id="(Correlations)Correlations_box" alt="Data not available"></img></div>
-        </div><br>
+        <div class="container" id="(Correlations)Correlations_div">
+          <div class="child">
+          <img src="" id="(Correlations)Correlations" alt="Data not available"></img>
+          </div>
+        </div>
+        <div class="container" id="(Correlations)Correlations_box_div">
+          <div class="child">
+          <img src="" id="(Correlations)Correlations_box" alt="Data not available"></img>
+          </div>
+        </div>
         </div>
     </div>
-    <div data-role="page" id="AllModels">
-      <div data-role="header" data-position="fixed" data-tap-toggle="false">
-        <h1 id="AllModelsHead">All Models</h1>
-        <div data-role="navbar">
-	  <ul>
-            <li><a href='#MeanState'>Mean State</a></li>
-            <li><a href='#AllModels' class=ui-btn-active ui-state-persist>All Models</a></li>
-            <li><a href='#DataInformation'>Data Information</a></li>
-	  </ul>
-	</div>
-      </div>
-      <select id="AllModelsRegion" onchange="AllSelect()">
-        <option value='0'>0</option>
-        <option value='1'>1</option>
-        <option value='2'>2</option>
-        <option value='global' selected="selected">Globe</option>
-      </select>
-      <select id="AllModelsPlot" onchange="AllSelect()">
-        <option value='(Time Series)Legend'></option>
-        <option value='(Time Series)Hourly'></option>
-        <option value='(Time Series)Daily'></option>
-        <option value='(Time Series)Monthly'></option>
-        <option value='(Time Series)Seasonly'></option>
-        <option value='(Time Series)Taylor'></option>
-        <option value='(Time Series)Yearly'></option>
-        <option value='(Time Series)Season 1'></option>
-        <option value='(Time Series)Season 2'></option>
-        <option value='(Time Series)Season 3'></option>
-        <option value='(Time Series)Season 4'></option>
-        <option value='(Time Series)TaylorAnnual'></option>
-        <option value='(Cycle 1)Time Series'></option>
-        <option value='(Cycle 2)Time Series'></option>
-        <option value='(Cycle 3)Time Series'></option>
-        <option value='(Cycle 4)Time Series'></option>
-        <option value='Time Series'></option>
-        <option value='Season 1'></option>
-        <option value='Season 2'></option>
-        <option value='Season 3'></option>
-        <option value='Season 4'></option>
-        <option value='Taylor Graph'></option>
-        <option value='(PDF & CDF)PDF & CDF'></option>
-        <option value='(Wavelet)Wavelet Obs'></option>
-        <option value='(Wavelet)Wavelet Mod0'></option>
-        <option value='(Time Series)Legend2'></option>
-        <option value='(Response)Response'></option>
-        <option value='(Response)Response_error'></option>
-        <option value='(Response)Response(DJF)'></option>
-        <option value='(Response)Response(DJF)1'></option>
-        <option value='(Response)Response(MAM)'></option>
-        <option value='(Response)Response(MAM)2'></option>
-        <option value='(Response)Response(JJA)'></option>
-        <option value='(Response)Response(JJA)2'></option>
-        <option value='(Response)Response(SON)'></option>
-        <option value='(Response)Response(SON)2'></option>
-        <option value='(Response)Response 4 Variable'></option>
-        <option value='(Response)Response 4 Variable(DJF)'></option>
-        <option value='(Response)Response 4 Variable(MAM)'></option>
-        <option value='(Response)Response 4 Variable(JJA)'></option>
-        <option value='(Response)Response 4 Variable(SON)'></option>
-        <option value='(Correlations)Correlations'></option>
-        <option value='(Correlations)Correlations_box'></option>
-      </select>
-        <div class="outer" id="Benchmark_div">
-              <div class="inner rotate">Benchmark</div>
-              <div class="second"><img class = "thumbnail" src="" id="Benchmark" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="Model1_div">
-              <div class="inner rotate">Model1</div>
-              <div class="second"><img class = "thumbnail" src="" id="Model1" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="Model2_div">
-              <div class="inner rotate">Model2</div>
-              <div class="second"><img class = "thumbnail" src="" id="Model2" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="Models_div">
-              <div class="inner rotate">Models</div>
-              <div class="second"><img class = "thumbnail" src="" id="Models" alt="Data not available"></img></div>
-        </div><br>
-        <div class="outer" id="legend_div">
-          <div class="inner rotate"> </div>
-          <div class="second"><img src="" id="legend" alt="Data not available"></img></div>
-        </div><br>
-    </div>
-       <div data-role="page" id="DataInformation">
+    <div data-role="page" id="DataInformation">
       <div data-role="header" data-position="fixed" data-tap-toggle="false">
         <h1 id="DataInformationHead">Data Information</h1>
         <div data-role="navbar">
 	  <ul>
             <li><a href='#MeanState'>Mean State</a></li>
-            <li><a href='#AllModels'>All Models</a></li>
             <li><a href='#DataInformation' class=ui-btn-active ui-state-persist>Data Information</a></li>
 	  </ul>
 	</div>
