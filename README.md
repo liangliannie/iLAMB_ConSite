@@ -3,7 +3,7 @@
 This Python Package, name PyE3SM, is established to comprehensively examine the land component of Energy Exascale Earth System Model (E3SM). The PyE3SM can be viewed as a visualization tool, which is able to provide integrated evaluation of E3SM performance for the individual variables and relationships among multiple variables. 
 
 
-![Package Structure](./structure.png=500x "Package Structure")
+![Package Structure](./structure.png "Package Structure")
 
 
 Mainly, PyE3SM is trying to evaluate the land models throught four aspects: Time Series, Cycle Means, Frequency, and Responses.
@@ -18,11 +18,11 @@ Here 2, 3 defined different versions of the confrontation file, where ConfSite3.
 
 Selective outputs of the package are listed below,
 
-![Selective outputs](./site.png=500x  "Selective outputs")
-![Selective outputs](./time1.png=500x "Selective outputs")
-![Selective outputs](./cycle.png=500x  "Selective outputs")
-![Selective outputs](./taylor.png=500x  "Selective outputs")
-![Selective outputs](./wavelet.png=500x "Selective outputs")
+![Selective outputs](./site.png  "Selective outputs")
+![Selective outputs](./time1.png "Selective outputs")
+![Selective outputs](./cycle.png  "Selective outputs")
+![Selective outputs](./taylor.png  "Selective outputs")
+![Selective outputs](./wavelet.png "Selective outputs")
 
 Overall, this can also be viewed as an extension for adding new metrics to iLAMB which works as the site-level component for land models' evaluations.
 
