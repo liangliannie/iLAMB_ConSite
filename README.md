@@ -18,8 +18,18 @@ Here 2, 3 defined different versions of the confrontation file, where ConfSite3.
 
 Selective outputs of the package are listed below,
 
+![Selective outputs](./site.png "Selective outputse")
+![Selective outputs](./time1.png "Selective outputs")
+![Selective outputs](./cycle.png "Selective outputs")
+![Selective outputs](./taylor.png "Selective outputs")
+![Selective outputs](./wavelet.png "Selective outputs")
 
 Overall, this can also be viewed as an extension for adding new metrics to iLAMB which works as the site-level component for land models' evaluations.
 
 The example output of the package can be found below:
 [Webpage CERES.html](http://volweb.utk.edu/~lli51/ol2/CERES.html)
+
+Please cite our coming paper,
+
+Liang Li, Jiafu Mao, Daniel M. Ricciuto, "Developing a site-level diagnostic package for the land component of E3SM"
+
