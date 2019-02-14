@@ -1,7 +1,7 @@
 import pylab
 from pylab import *
 import matplotlib.pyplot as plt
-start_year = 1991
+start_year = 1850
 end_year = 2014
 
 col = ['plum', 'darkorchid', 'blue', 'navy', 'deepskyblue', 'darkcyan', 'seagreen', 'darkgreen',
@@ -502,8 +502,7 @@ def wavelet_plot(var, time, data_unnorm, dtmin, result, fig, unit='units', m=Non
     position = fig.add_axes([0.2, -0., 0.6, 0.01])
     cbar = plt.colorbar(pc, cax=position, orientation='horizontal')
     cbar.set_label('Power', fontsize=8)
-    yt = range(int(np.log2(result['period'][0])), int(
-        np.log2(result['period'][-1]) + 1))  # create the vector of periods
+    yt = range(int(np.log2(result['period'][0])), int(np.log2(result['period'][-1]) + 1))  # create the vector of periods
     Yticks = [float(math.pow(2, p)) for p in yt]  # make 2^periods
     # Yticks = [int(i) for i in Yticks]
     ax2.set_yticks(yt)
@@ -516,19 +515,22 @@ def wavelet_plot(var, time, data_unnorm, dtmin, result, fig, unit='units', m=Non
     ax2.axhline(y=10.5, xmin=0, xmax=1, linewidth=2, color='k')
     ax2.axhline(y=13.3, xmin=0, xmax=1, linewidth=2, color='k')
 
+    # ax3.xaxis.set_ticks(time)
+    # ax3.set_xticklabels(plt.num2date(time))
+    # print('hello')
+    # d_d_obs = np.asarray([str(start_year + int(x) / 365) + (
+    # '0' + str(int(x) % 365 / 31 + 1) if int(x) % 365 / 31 < 9 else str(int(x) % 365 / 31 + 1)) for x in time])
+    #
+    # ax2.xaxis.set_ticks(
+    #     [time[0], time[len(time) / 5], time[2 * len(time) / 5], time[3 * len(time) / 5],
+    #      time[4 * len(time) / 5]])
+    # ax2.set_xticklabels(
+    #  [d_d_obs[0], d_d_obs[len(d_d_obs) / 5], d_d_obs[2 * len(d_d_obs) / 5], d_d_obs[3 * len(d_d_obs) / 5],
+    #      d_d_obs[4 * len(d_d_obs) / 5]])
 
-    d_d_obs = np.asarray([str(start_year + int(x) / 365) + (
-    '0' + str(int(x) % 365 / 31 + 1) if int(x) % 365 / 31 < 9 else str(int(x) % 365 / 31 + 1)) for x in time])
-
-    ax2.xaxis.set_ticks(
-        [time[0], time[len(time) / 5], time[2 * len(time) / 5], time[3 * len(time) / 5],
-         time[4 * len(time) / 5]])
-    ax2.set_xticklabels(
-     [d_d_obs[0], d_d_obs[len(d_d_obs) / 5], d_d_obs[2 * len(d_d_obs) / 5], d_d_obs[3 * len(d_d_obs) / 5],
-         d_d_obs[4 * len(d_d_obs) / 5]])
     # ----------------------------------------------------------------------------------------------------------------#
     """ Plot global wavelet spectrum """
-    f, sxx = fft(data)
+    # f, sxx = fft(data)
     # ax5.plot(sxx, np.log2(1 / f * result['dt']), 'gray', label='Fourier spectrum')
     ax5.plot(result['global_ws'], np.log2(
         result['period']), 'b', label='Wavelet spectrum')
