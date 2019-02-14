@@ -18,11 +18,11 @@ Here 2, 3 defined different versions of the confrontation file, where ConfSite3.
 
 Selective outputs of the package are listed below,
 
-![Selective outputs](./site.png  "Selective outputse"){ width: 200px; }
-![Selective outputs](./time1.png "Selective outputs"){ width: 200px; }
-![Selective outputs](./cycle.png  "Selective outputs"){ width: 200px; }
-![Selective outputs](./taylor.png  "Selective outputs"){ width: 200px; }
-![Selective outputs](./wavelet.png "Selective outputs"){ width: 200px; }
+![Selective outputs](./site.png  "Selective outputse"=300x)
+![Selective outputs](./time1.png "Selective outputs"=300x)
+![Selective outputs](./cycle.png  "Selective outputs"=300x)
+![Selective outputs](./taylor.png  "Selective outputs"=300x)
+![Selective outputs](./wavelet.png "Selective outputs"=300x)
 
 Overall, this can also be viewed as an extension for adding new metrics to iLAMB which works as the site-level component for land models' evaluations.
 
