@@ -26,7 +26,14 @@ Selective outputs of the package are listed below,
 
 Overall, this can also be viewed as an extension for adding new metrics to iLAMB which works as the site-level component for land models' evaluations.
 
-How to use the package, the package is building based on iLAMB with an additional depency Pandas:
+How to use the package, the package is building based on iLAMB with an additional depency Pandas(Place all the files in the same directory). 
+
+PIL
+Matplotlib
+numpy
+pandas
+
+All the parameters are currently included inside the package file, and in the near future we will write a bash file to include all the parameters by using parse. 
 
 All of the lats, lons of the example are listed below, which can be revised in the confsite3.py file.
 ```python
