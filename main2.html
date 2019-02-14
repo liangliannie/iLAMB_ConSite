@@ -90,13 +90,13 @@
 		var table = document.getElementById("MeanState_table_" + select.options[i].value);
 		var rows  = table.getElementsByTagName("tr");
 		for (var r = 2; r < rows.length; r++) {
-        	    for (var c = 0; c < rows[r].cells.length-7; c++) {
+        	    for (var c = 0; c < rows[r].cells.length-8; c++) {
         		rows[r].cells[c].style.backgroundColor = "#ffffff";
         	    }
 		}
 		var r = cell.closest("tr").rowIndex;
                 document.getElementById("MeanStateModel").selectedIndex = r-1;
-		for (var c = 0; c < rows[r].cells.length-7; c++) {
+		for (var c = 0; c < rows[r].cells.length-8; c++) {
         	    rows[r].cells[c].style.backgroundColor = "#c1c1c1";
 		}
 	    }
@@ -107,7 +107,7 @@
 	    var colors = ['#fb6a4a','#fc9272','#fcbba1','#fee0d2','#fff5f0','#f7fcf5','#e5f5e0','#c7e9c0','#a1d99b','#74c476'];
             var table  = document.getElementById("MeanState_table_" + RNAME);
             var rows   = table.getElementsByTagName("tr");
-            for (var c = rows[0].cells.length-6; c < rows[0].cells.length; c++) {		
+            for (var c = rows[0].cells.length-7; c < rows[0].cells.length; c++) {		
 		var scores = [];
 		for (var r = 2; r < rows.length; r++) {
                     val = rows[r].cells[c].innerHTML;
@@ -269,13 +269,13 @@
 	</div>
       </div>
       <select id="MeanStateRegion" onchange="changeRegionMeanState()">
+        <option value='0'>SITE: 0</option>
+        <option value='1'>SITE: 1</option>
+        <option value='2'>SITE: 2</option>
         <option value='I1'>Evergreen Needleleaf Forest</option>
         <option value='I12'>Croplands</option>
         <option value='I2'>Deciduous Needleleaf Forest</option>
         <option value='global' selected="selected">Globe</option>
-        <option value='site0'>SITE: 0</option>
-        <option value='site1'>SITE: 1</option>
-        <option value='site2'>SITE: 2</option>
       </select>
       <div style="display:none">
       <select id="MeanStateModel">
@@ -286,57 +286,251 @@
       </select>
       </div>
         <center>
-        <table class="table-header-rotated" id="MeanState_table_I1">
+        <table class="table-header-rotated" id="MeanState_table_0">
            <thead>
              <tr>
                <th></th>
                <th class="rotate"><div><span>Download Data</span></div></th>
-               <th class="rotate"><div><span>CorrelationDetrend [0-1]</span></div></th>
-               <th class="rotate"><div><span>CorrelationTrend [0-1]</span></div></th>
+               <th class="rotate"><div><span>Response4 [0-1]</span></div></th>
+               <th class="rotate"><div><span>Frequency [0-1]</span></div></th>
+               <th class="rotate"><div><span>TimeSeries [0-1]</span></div></th>
+               <th class="rotate"><div><span>Correlation [0-1]</span></div></th>
+               <th class="rotate"><div><span>CycleMeans [0-1]</span></div></th>
                <th class="rotate"><div><span>PartialCorrelation [0-1]</span></div></th>
-               <th class="rotate"><div><span>TimeSeries [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response4 [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response2 [Average Error]</span></div></th>
+               <th class="rotate"><div><span>Response [0-1]</span></div></th>
              </tr>
            </thead>
            <tbody>
              <tr>
                <td class="row-header">Benchmark</td>
                <td><a href="._Benchmark.nc" download>[-]</a></td>
-               <td>0.973</td>
-               <td>0.969</td>
-               <td>0.0205</td>
-               <td>0.00</td>
-               <td>0.00</td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+             </tr>
+          </tbody>
+        </table>
+        </center>
+        <center>
+        <table class="table-header-rotated" id="MeanState_table_1">
+           <thead>
+             <tr>
+               <th></th>
+               <th class="rotate"><div><span>Download Data</span></div></th>
+               <th class="rotate"><div><span>Response4 [0-1]</span></div></th>
+               <th class="rotate"><div><span>Frequency [0-1]</span></div></th>
+               <th class="rotate"><div><span>TimeSeries [0-1]</span></div></th>
+               <th class="rotate"><div><span>Correlation [0-1]</span></div></th>
+               <th class="rotate"><div><span>CycleMeans [0-1]</span></div></th>
+               <th class="rotate"><div><span>PartialCorrelation [0-1]</span></div></th>
+               <th class="rotate"><div><span>Response [0-1]</span></div></th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr>
+               <td class="row-header">Benchmark</td>
+               <td><a href="._Benchmark.nc" download>[-]</a></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+             </tr>
+          </tbody>
+        </table>
+        </center>
+        <center>
+        <table class="table-header-rotated" id="MeanState_table_2">
+           <thead>
+             <tr>
+               <th></th>
+               <th class="rotate"><div><span>Download Data</span></div></th>
+               <th class="rotate"><div><span>Response4 [0-1]</span></div></th>
+               <th class="rotate"><div><span>Frequency [0-1]</span></div></th>
+               <th class="rotate"><div><span>TimeSeries [0-1]</span></div></th>
+               <th class="rotate"><div><span>Correlation [0-1]</span></div></th>
+               <th class="rotate"><div><span>CycleMeans [0-1]</span></div></th>
+               <th class="rotate"><div><span>PartialCorrelation [0-1]</span></div></th>
+               <th class="rotate"><div><span>Response [0-1]</span></div></th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr>
+               <td class="row-header">Benchmark</td>
+               <td><a href="._Benchmark.nc" download>[-]</a></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
                <td>0.00</td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.966</td>
-               <td onclick="highlightRowMeanState(this)">0.966</td>
-               <td onclick="highlightRowMeanState(this)">-0.000786</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.982</td>
-               <td onclick="highlightRowMeanState(this)">0.982</td>
-               <td onclick="highlightRowMeanState(this)">-0.0228</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.974</td>
-               <td onclick="highlightRowMeanState(this)">0.974</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
                <td onclick="highlightRowMeanState(this)">0.00</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
+             </tr>
+          </tbody>
+        </table>
+        </center>
+        <center>
+        <table class="table-header-rotated" id="MeanState_table_I1">
+           <thead>
+             <tr>
+               <th></th>
+               <th class="rotate"><div><span>Download Data</span></div></th>
+               <th class="rotate"><div><span>Response4 [0-1]</span></div></th>
+               <th class="rotate"><div><span>Frequency [0-1]</span></div></th>
+               <th class="rotate"><div><span>TimeSeries [0-1]</span></div></th>
+               <th class="rotate"><div><span>Correlation [0-1]</span></div></th>
+               <th class="rotate"><div><span>CycleMeans [0-1]</span></div></th>
+               <th class="rotate"><div><span>PartialCorrelation [0-1]</span></div></th>
+               <th class="rotate"><div><span>Response [0-1]</span></div></th>
+             </tr>
+           </thead>
+           <tbody>
+             <tr>
+               <td class="row-header">Benchmark</td>
+               <td><a href="._Benchmark.nc" download>[-]</a></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+             </tr>
+             <tr>
+               <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
+               <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
                <td onclick="highlightRowMeanState(this)"></td>
                <td onclick="highlightRowMeanState(this)"></td>
              </tr>
@@ -349,52 +543,57 @@
              <tr>
                <th></th>
                <th class="rotate"><div><span>Download Data</span></div></th>
-               <th class="rotate"><div><span>CorrelationDetrend [0-1]</span></div></th>
-               <th class="rotate"><div><span>CorrelationTrend [0-1]</span></div></th>
+               <th class="rotate"><div><span>Response4 [0-1]</span></div></th>
+               <th class="rotate"><div><span>Frequency [0-1]</span></div></th>
+               <th class="rotate"><div><span>TimeSeries [0-1]</span></div></th>
+               <th class="rotate"><div><span>Correlation [0-1]</span></div></th>
+               <th class="rotate"><div><span>CycleMeans [0-1]</span></div></th>
                <th class="rotate"><div><span>PartialCorrelation [0-1]</span></div></th>
-               <th class="rotate"><div><span>TimeSeries [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response4 [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response2 [Average Error]</span></div></th>
+               <th class="rotate"><div><span>Response [0-1]</span></div></th>
              </tr>
            </thead>
            <tbody>
              <tr>
                <td class="row-header">Benchmark</td>
                <td><a href="._Benchmark.nc" download>[-]</a></td>
-               <td>0.959</td>
-               <td>0.962</td>
-               <td>-0.0366</td>
-               <td>0.00</td>
-               <td>0.00</td>
-               <td>0.00</td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.988</td>
-               <td onclick="highlightRowMeanState(this)">0.987</td>
-               <td onclick="highlightRowMeanState(this)">-0.0159</td>
-               <td onclick="highlightRowMeanState(this)">35.9</td>
-               <td onclick="highlightRowMeanState(this)">35.4</td>
-               <td onclick="highlightRowMeanState(this)">35.4</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.992</td>
-               <td onclick="highlightRowMeanState(this)">0.991</td>
-               <td onclick="highlightRowMeanState(this)">-0.0242</td>
-               <td onclick="highlightRowMeanState(this)">34.3</td>
-               <td onclick="highlightRowMeanState(this)">33.9</td>
-               <td onclick="highlightRowMeanState(this)">33.9</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.990</td>
-               <td onclick="highlightRowMeanState(this)">0.989</td>
-               <td onclick="highlightRowMeanState(this)">0.00</td>
-               <td onclick="highlightRowMeanState(this)">34.3</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
                <td onclick="highlightRowMeanState(this)"></td>
                <td onclick="highlightRowMeanState(this)"></td>
              </tr>
@@ -407,52 +606,57 @@
              <tr>
                <th></th>
                <th class="rotate"><div><span>Download Data</span></div></th>
-               <th class="rotate"><div><span>CorrelationDetrend [0-1]</span></div></th>
-               <th class="rotate"><div><span>CorrelationTrend [0-1]</span></div></th>
+               <th class="rotate"><div><span>Response4 [0-1]</span></div></th>
+               <th class="rotate"><div><span>Frequency [0-1]</span></div></th>
+               <th class="rotate"><div><span>TimeSeries [0-1]</span></div></th>
+               <th class="rotate"><div><span>Correlation [0-1]</span></div></th>
+               <th class="rotate"><div><span>CycleMeans [0-1]</span></div></th>
                <th class="rotate"><div><span>PartialCorrelation [0-1]</span></div></th>
-               <th class="rotate"><div><span>TimeSeries [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response4 [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response2 [Average Error]</span></div></th>
+               <th class="rotate"><div><span>Response [0-1]</span></div></th>
              </tr>
            </thead>
            <tbody>
              <tr>
                <td class="row-header">Benchmark</td>
                <td><a href="._Benchmark.nc" download>[-]</a></td>
-               <td>0.935</td>
-               <td>0.885</td>
-               <td>0.0513</td>
-               <td>0.00</td>
-               <td>0.00</td>
-               <td>0.00</td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
+               <td></td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.971</td>
-               <td onclick="highlightRowMeanState(this)">0.970</td>
-               <td onclick="highlightRowMeanState(this)">-0.00518</td>
-               <td onclick="highlightRowMeanState(this)">141.</td>
-               <td onclick="highlightRowMeanState(this)">141.</td>
-               <td onclick="highlightRowMeanState(this)">141.</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.990</td>
-               <td onclick="highlightRowMeanState(this)">0.990</td>
-               <td onclick="highlightRowMeanState(this)">0.0444</td>
-               <td onclick="highlightRowMeanState(this)">136.</td>
-               <td onclick="highlightRowMeanState(this)">136.</td>
-               <td onclick="highlightRowMeanState(this)">136.</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.980</td>
-               <td onclick="highlightRowMeanState(this)">0.980</td>
-               <td onclick="highlightRowMeanState(this)">0.00</td>
-               <td onclick="highlightRowMeanState(this)">136.</td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)"></td>
                <td onclick="highlightRowMeanState(this)"></td>
                <td onclick="highlightRowMeanState(this)"></td>
              </tr>
@@ -465,227 +669,58 @@
              <tr>
                <th></th>
                <th class="rotate"><div><span>Download Data</span></div></th>
-               <th class="rotate"><div><span>CorrelationDetrend [0-1]</span></div></th>
-               <th class="rotate"><div><span>CorrelationTrend [0-1]</span></div></th>
+               <th class="rotate"><div><span>Response4 [0-1]</span></div></th>
+               <th class="rotate"><div><span>Frequency [0-1]</span></div></th>
+               <th class="rotate"><div><span>TimeSeries [0-1]</span></div></th>
+               <th class="rotate"><div><span>Correlation [0-1]</span></div></th>
+               <th class="rotate"><div><span>CycleMeans [0-1]</span></div></th>
                <th class="rotate"><div><span>PartialCorrelation [0-1]</span></div></th>
-               <th class="rotate"><div><span>TimeSeries [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response4 [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response2 [Average Error]</span></div></th>
+               <th class="rotate"><div><span>Response [0-1]</span></div></th>
              </tr>
            </thead>
            <tbody>
              <tr>
                <td class="row-header">Benchmark</td>
                <td><a href="._Benchmark.nc" download>[-]</a></td>
-               <td>0.868</td>
-               <td>0.881</td>
-               <td>0.00750</td>
                <td>0.00</td>
                <td>0.00</td>
                <td>0.00</td>
+               <td>0.00</td>
+               <td>0.00</td>
+               <td>0.00</td>
+               <td></td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.878</td>
-               <td onclick="highlightRowMeanState(this)">0.878</td>
-               <td onclick="highlightRowMeanState(this)">-0.0115</td>
-               <td onclick="highlightRowMeanState(this)">51.8</td>
-               <td onclick="highlightRowMeanState(this)">51.1</td>
-               <td onclick="highlightRowMeanState(this)">51.1</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)"></td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.835</td>
-               <td onclick="highlightRowMeanState(this)">0.835</td>
-               <td onclick="highlightRowMeanState(this)">0.0180</td>
-               <td onclick="highlightRowMeanState(this)">51.3</td>
-               <td onclick="highlightRowMeanState(this)">50.5</td>
-               <td onclick="highlightRowMeanState(this)">50.5</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)"></td>
              </tr>
              <tr>
                <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
                <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.856</td>
-               <td onclick="highlightRowMeanState(this)">0.857</td>
                <td onclick="highlightRowMeanState(this)">0.00</td>
-               <td onclick="highlightRowMeanState(this)">51.3</td>
-               <td onclick="highlightRowMeanState(this)"></td>
-               <td onclick="highlightRowMeanState(this)"></td>
-             </tr>
-          </tbody>
-        </table>
-        </center>
-        <center>
-        <table class="table-header-rotated" id="MeanState_table_site0">
-           <thead>
-             <tr>
-               <th></th>
-               <th class="rotate"><div><span>Download Data</span></div></th>
-               <th class="rotate"><div><span>CorrelationDetrend [0-1]</span></div></th>
-               <th class="rotate"><div><span>CorrelationTrend [0-1]</span></div></th>
-               <th class="rotate"><div><span>PartialCorrelation [0-1]</span></div></th>
-               <th class="rotate"><div><span>TimeSeries [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response4 [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response2 [Average Error]</span></div></th>
-             </tr>
-           </thead>
-           <tbody>
-             <tr>
-               <td class="row-header">Benchmark</td>
-               <td><a href="._Benchmark.nc" download>[-]</a></td>
-               <td>0.973</td>
-               <td>0.969</td>
-               <td>0.0205</td>
-               <td>0.00</td>
-               <td>0.00</td>
-               <td>0.00</td>
-             </tr>
-             <tr>
-               <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
-               <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.966</td>
-               <td onclick="highlightRowMeanState(this)">0.966</td>
-               <td onclick="highlightRowMeanState(this)">-0.000786</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-             </tr>
-             <tr>
-               <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
-               <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.982</td>
-               <td onclick="highlightRowMeanState(this)">0.982</td>
-               <td onclick="highlightRowMeanState(this)">-0.0228</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-             </tr>
-             <tr>
-               <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
-               <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.974</td>
-               <td onclick="highlightRowMeanState(this)">0.974</td>
                <td onclick="highlightRowMeanState(this)">0.00</td>
-               <td onclick="highlightRowMeanState(this)">21.1</td>
-               <td onclick="highlightRowMeanState(this)"></td>
-               <td onclick="highlightRowMeanState(this)"></td>
-             </tr>
-          </tbody>
-        </table>
-        </center>
-        <center>
-        <table class="table-header-rotated" id="MeanState_table_site1">
-           <thead>
-             <tr>
-               <th></th>
-               <th class="rotate"><div><span>Download Data</span></div></th>
-               <th class="rotate"><div><span>CorrelationDetrend [0-1]</span></div></th>
-               <th class="rotate"><div><span>CorrelationTrend [0-1]</span></div></th>
-               <th class="rotate"><div><span>PartialCorrelation [0-1]</span></div></th>
-               <th class="rotate"><div><span>TimeSeries [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response4 [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response2 [Average Error]</span></div></th>
-             </tr>
-           </thead>
-           <tbody>
-             <tr>
-               <td class="row-header">Benchmark</td>
-               <td><a href="._Benchmark.nc" download>[-]</a></td>
-               <td>0.935</td>
-               <td>0.885</td>
-               <td>0.0513</td>
-               <td>0.00</td>
-               <td>0.00</td>
-               <td>0.00</td>
-             </tr>
-             <tr>
-               <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
-               <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.971</td>
-               <td onclick="highlightRowMeanState(this)">0.970</td>
-               <td onclick="highlightRowMeanState(this)">-0.00518</td>
-               <td onclick="highlightRowMeanState(this)">141.</td>
-               <td onclick="highlightRowMeanState(this)">141.</td>
-               <td onclick="highlightRowMeanState(this)">141.</td>
-             </tr>
-             <tr>
-               <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
-               <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.990</td>
-               <td onclick="highlightRowMeanState(this)">0.990</td>
-               <td onclick="highlightRowMeanState(this)">0.0444</td>
-               <td onclick="highlightRowMeanState(this)">136.</td>
-               <td onclick="highlightRowMeanState(this)">136.</td>
-               <td onclick="highlightRowMeanState(this)">136.</td>
-             </tr>
-             <tr>
-               <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
-               <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.980</td>
-               <td onclick="highlightRowMeanState(this)">0.980</td>
                <td onclick="highlightRowMeanState(this)">0.00</td>
-               <td onclick="highlightRowMeanState(this)">136.</td>
-               <td onclick="highlightRowMeanState(this)"></td>
-               <td onclick="highlightRowMeanState(this)"></td>
-             </tr>
-          </tbody>
-        </table>
-        </center>
-        <center>
-        <table class="table-header-rotated" id="MeanState_table_site2">
-           <thead>
-             <tr>
-               <th></th>
-               <th class="rotate"><div><span>Download Data</span></div></th>
-               <th class="rotate"><div><span>CorrelationDetrend [0-1]</span></div></th>
-               <th class="rotate"><div><span>CorrelationTrend [0-1]</span></div></th>
-               <th class="rotate"><div><span>PartialCorrelation [0-1]</span></div></th>
-               <th class="rotate"><div><span>TimeSeries [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response4 [Average Error]</span></div></th>
-               <th class="rotate"><div><span>Response2 [Average Error]</span></div></th>
-             </tr>
-           </thead>
-           <tbody>
-             <tr>
-               <td class="row-header">Benchmark</td>
-               <td><a href="._Benchmark.nc" download>[-]</a></td>
-               <td>0.959</td>
-               <td>0.962</td>
-               <td>-0.0366</td>
-               <td>0.00</td>
-               <td>0.00</td>
-               <td>0.00</td>
-             </tr>
-             <tr>
-               <td onclick="highlightRowMeanState(this)" class="row-header">Model1</td>
-               <td onclick="highlightRowMeanState(this)"><a href="._Model1.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.988</td>
-               <td onclick="highlightRowMeanState(this)">0.987</td>
-               <td onclick="highlightRowMeanState(this)">-0.0159</td>
-               <td onclick="highlightRowMeanState(this)">35.9</td>
-               <td onclick="highlightRowMeanState(this)">35.4</td>
-               <td onclick="highlightRowMeanState(this)">35.4</td>
-             </tr>
-             <tr>
-               <td onclick="highlightRowMeanState(this)" class="row-header">Model2</td>
-               <td onclick="highlightRowMeanState(this)"><a href="._Model2.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.992</td>
-               <td onclick="highlightRowMeanState(this)">0.991</td>
-               <td onclick="highlightRowMeanState(this)">-0.0242</td>
-               <td onclick="highlightRowMeanState(this)">34.3</td>
-               <td onclick="highlightRowMeanState(this)">33.9</td>
-               <td onclick="highlightRowMeanState(this)">33.9</td>
-             </tr>
-             <tr>
-               <td onclick="highlightRowMeanState(this)" class="row-header">Models</td>
-               <td onclick="highlightRowMeanState(this)"><a href="._Models.nc" download>[-]</a></td>
-               <td onclick="highlightRowMeanState(this)">0.990</td>
-               <td onclick="highlightRowMeanState(this)">0.989</td>
                <td onclick="highlightRowMeanState(this)">0.00</td>
-               <td onclick="highlightRowMeanState(this)">34.3</td>
-               <td onclick="highlightRowMeanState(this)"></td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
+               <td onclick="highlightRowMeanState(this)">0.00</td>
                <td onclick="highlightRowMeanState(this)"></td>
              </tr>
           </tbody>
@@ -957,13 +992,13 @@
 	</div>
       </div>
       <select id="AllModelsRegion" onchange="AllSelect()">
+        <option value='0'>SITE: 0</option>
+        <option value='1'>SITE: 1</option>
+        <option value='2'>SITE: 2</option>
         <option value='I1'>Evergreen Needleleaf Forest</option>
         <option value='I12'>Croplands</option>
         <option value='I2'>Deciduous Needleleaf Forest</option>
         <option value='global' selected="selected">Globe</option>
-        <option value='site0'>SITE: 0</option>
-        <option value='site1'>SITE: 1</option>
-        <option value='site2'>SITE: 2</option>
       </select>
       <select id="AllModelsPlot" onchange="AllSelect()">
       </select>

@@ -5,13 +5,12 @@ from ILAMB.Confrontation import getVariableList
 from ILAMB.Regions import Regions
 import ILAMB.ilamblib as il
 import ILAMB.Post as post
+# import ILAMB.Post1 as post
+# import ILAMB.Post3 as post
 
 from netCDF4 import Dataset
 import matplotlib.pyplot as plt, numpy as np
 from matplotlib.collections import LineCollection
-# import ILAMB.Post1 as post
-import ILAMB.Post3 as post
-# import ILAMB.Post as post
 from scipy.interpolate import CubicSpline
 from scipy import stats, linalg
 from scipy import signal
@@ -26,6 +25,7 @@ import pandas as pd
 import seaborn as sns; sns.set()
 import os, glob, math, calendar, PIL
 from PIL import Image
+import collections
 
 # self-package
 from taylorDiagram import plot_Taylor_graph_time_basic
@@ -34,10 +34,12 @@ from taylorDiagram import plot_Taylor_graph
 from taylorDiagram import plot_Taylor_graph_day_cycle
 from taylorDiagram import plot_Taylor_graph_three_cycle
 import waipy
-from PyEMD import EEMD
-from hht import hht
-from hht import plot_imfs
-from hht import plot_frequency
+
+# To add IMF analysis, refer to https://github.com/liangliannie/hht-spectrum
+# from PyEMD import EEMD
+# from hht import hht
+# from hht import plot_imfs
+# from hht import plot_frequency
 
 
 
@@ -1187,7 +1189,14 @@ def plot_variable_matrix_trend_and_detrend(data, dtrend_data, variable_list, col
     return fig
 
 class ConfSite(Confrontation):
-    """A confrontation for examining the site
+    """
+
+    A confrontation for examining the site based on iLAMB conference
+
+    (Here we assume iLAMB has passed out the correct obs and mods
+
+    If not, observations and Models could be manually input in the begining of __init__ )
+
     """
 
     def __init__(self, **keywords):
@@ -1196,47 +1205,100 @@ class ConfSite(Confrontation):
         super(ConfSite, self).__init__(**keywords)
         # Setup a html layout for generating web views of the results
 
-        obs = Variable(filename=self.source,
-                       variable_name=self.variable,
-                       alternate_vars=self.alternate_vars)
 
+        obs = Variable(filename=self.source, variable_name=self.variable,  alternate_vars=self.alternate_vars)
+        RegionsFile = Dataset( '/Users/lli51/Desktop/IGBPa_1198.map.nc')  # Supposed to change dir based on different directory/Or put subdirectory
+
+        # Current Site Name & Site Location information i.e. lat, lon based on Observations ## Dec. 13. 2018.
         self.sitenumber = 3  # len(regions)
-
+        self.sitename = ['SITE: '+str(i) for i in range(self.sitenumber)] # Supposed to be learned or input from .nc file
         self.lats = obs.lat[:self.sitenumber]
         self.lons = obs.lon[:self.sitenumber]
 
-        r = Regions()
-        # Setup the name of the sites and regions functions
+
+        # Define the Regions(Sinle Site, Geographic Group, or District IGBP(or Other Groups) )
+        reg = Regions()
         regions = []
-        for i in range(len(self.lats)):
-            # r.addRegionLatLonBounds(("lat" + str(self.lats[i])[:5] + "lon" + str(self.lons[i])[:5]),
-            #                         "lat" + str(self.lats[i])[:5] + "lon" + str(self.lons[i])[:5],
-            #                         (self.lats[i] - 0.5, self.lats[i] + 0.5), (self.lons[i] - 0.5, self.lons[i] + 0.5))
-            # regions.append("lat" + str(self.lats[i])[:5] + "lon" + str(self.lons[i])[:5])
-            r.addRegionLatLonBounds(str(i), str(i), (self.lats[i] - 0.01, self.lats[i] + 0.01), (self.lons[i] - 0.01, self.lons[i] + 0.01))
-            # print((self.lats[i] - 0.01, self.lats[i] + 0.01), (self.lons[i] - 0.01, self.lons[i] + 0.01))
+
+        ### -----------------  Single Site  ----------------------------------- ####
+        # Setup the name of the sites and regions' bounds
+        for i, (lat, lon) in enumerate(zip(self.lats, self.lons)):
+            reg.addRegionLatLonBounds(str(i), self.sitename[i], (lat - 0.01, lat + 0.01), (lon - 0.01, lon + 0.01))
             regions.append(str(i))
 
+        ### -----------------  Multiple Site in one group  ----------------------------------- ####
+        # Setup the region for multiple site regions based on IGBP
+        self.RegionsIGBP = {1: 'Evergreen Needleleaf Forest', 2: 'Evergreen Broadleaf Forest',
+                            3: 'Deciduous Needleleaf Forest', 4: 'Deciduous Broadleaf Forest', 5: ' Mixed Forest',
+                            6: 'Closed Shrublands', 7: 'Open Shrublands', 8: ' Woody Savannas',
+                            9: 'Savannas', 10: 'Grasslands ', 11: 'Permanent Wetlands',
+                            12: 'Croplands', 13: 'Urban and Built-up', 14: 'Cropland Mosaics',
+                            15: 'Snow and Ice (permanent)', 16: 'Bare Soil and Rocks', 17: 'Water Bodies', 18: 'Tundra'}
 
-        # after all sites, here we define the organize the regions
+
+
+        lat_region, lon_region = RegionsFile['lat'][:], RegionsFile['lon'][:]
+        RegionsLabel = RegionsFile['CLASS']
+
+        self.ind_regions = collections.defaultdict(set)
+        # Given the sites for the certain region
+        for i, (lat, lon) in enumerate(zip(self.lats, self.lons)):
+            ind_lat = (np.abs(lat_region - lat)).argmin()
+            ind_lon = (np.abs(lon_region - lon)).argmin()
+            ind_label = RegionsLabel[ind_lat][ind_lon]
+            if ind_label not in self.ind_regions:
+                self.ind_regions[ind_label]=i
+            else:
+                self.ind_regions.add(i)
+
+        for i, r in enumerate(self.ind_regions.keys()):
+            reg.addRegionLatLonBounds('IGBP'+str(i), self.RegionsIGBP[r], (90+i-0.5, 90+i+0.5),
+                                    (180+i-0.5, 180+i+0.5))
+            regions.append('IGBP'+str(i))
+
+        ### -----------------  Multiple Site in one group  -----------------------------------####
+        # To do, setup the region for multiple site regions based on Geographic Locations
 
         self.lowerlatbound = []
         self.upperlatbound = []
         self.lowerlonbound = []
         self.upperlonbound = []
 
-        r.addRegionLatLonBounds("global", "Globe", (-90, 90), (-180, 180))
+        regions.append("bona")
+        self.lowerlatbound.append(49.75)
+        self.upperlatbound.append(79.75)
+        self.lowerlonbound.append(-170.25)
+        self.upperlonbound.append(-60.25)
+
+        reg.addRegionLatLonBounds("bona", "Boreal North America", (49.75, 79.75), (-170.25, - 60.25))
+        #         reg.addRegionLatLonBounds("tena","Temperate North America",          ( 30.25, 49.75),(-125.25,- 66.25))
+        #         reg.addRegionLatLonBounds("ceam","Central America",                  (  9.75, 30.25),(-115.25,- 80.25))
+        #         reg.addRegionLatLonBounds("nhsa","Northern Hemisphere South America",(  0.25, 12.75),(- 80.25,- 50.25))
+        #         reg.addRegionLatLonBounds("shsa","Southern Hemisphere South America",(-59.75,  0.25),(- 80.25,- 33.25))
+        #         reg.addRegionLatLonBounds("euro","Europe",                           ( 35.25, 70.25),(- 10.25,  30.25))
+        #         reg.addRegionLatLonBounds("mide","Middle East",                      ( 20.25, 40.25),(- 10.25,  60.25))
+        #         reg.addRegionLatLonBounds("nhaf","Northern Hemisphere Africa",       (  0.25, 20.25),(- 20.25,  45.25))
+        #         reg.addRegionLatLonBounds("shaf","Southern Hemisphere Africa",       (-34.75,  0.25),(  10.25,  45.25))
+        #         reg.addRegionLatLonBounds("boas","Boreal Asia",                      ( 54.75, 70.25),(  30.25, 179.75))
+        #         reg.addRegionLatLonBounds("ceas","Central Asia",                     ( 30.25, 54.75),(  30.25, 142.58))
+        #         reg.addRegionLatLonBounds("seas","Southeast Asia",                   (  5.25, 30.25),(  65.25, 120.25))
+        #         reg.addRegionLatLonBounds("eqas","Equatorial Asia",                  (-10.25, 10.25),(  99.75, 150.25))
+        #         reg.addRegionLatLonBounds("aust","Australia",                        (-41.25,-10.50),( 112.00, 154.00))
+        #
+
+
+        reg.addRegionLatLonBounds("global", "Globe", (-90, 90), (-180, 180))
         regions.append("global")
         self.lowerlatbound.append(-90)
-        self.upperlatbound.append(80)
+        self.upperlatbound.append(90)
         self.lowerlonbound.append(-180)
         self.upperlonbound.append(180)
 
         self.regions = regions
-
+        # Above finished all the regions' setup
+        ### ---------------------------------------------------- ####
 
         pages = []
-
         pages.append(post.HtmlPage("MeanState", "Mean State"))
         pages[-1].setHeader("CNAME / RNAME / MNAME")
         pages[-1].setSections(["Time series","Time series(Annually)", "Cycles mean", "Cycles mean(seasonly)", "PDF CDF", "Frequency", "Response two variables", "Response four variables", "Correlations"])
@@ -1246,7 +1308,6 @@ class ConfSite(Confrontation):
         # pages[-1].setSections(["Time series", "Cycles mean", "Frequency", "Response"])
         pages[-1].setSections([])
         pages[-1].setRegions(self.regions)
-
 
         pages.append(post.HtmlPage("DataInformation","Data Information"))
         pages[-1].setSections([])
@@ -1265,18 +1326,19 @@ class ConfSite(Confrontation):
                        alternate_vars=self.alternate_vars)
 
         # the model data needs integrated over the globe
-        mod = m.extractTimeSeries(self.variable,
-                                  alt_vars=self.alternate_vars)
+        mod = m.extractTimeSeries(self.variable, alt_vars=self.alternate_vars)
         # mod = mod.integrateInSpace().convert(obs.unit)
 
         obs, mod = il.MakeComparable(obs, mod, clip_ref=True)
 
-        obs1 = Variable(name=obs.name,unit=obs.unit,time=obs.time,data=obs.data[:,0,0:self.sitenumber])
-        mod1 = Variable(name=mod.name, unit=mod.unit, time=mod.time, data=mod.data[:, 0, 0:self.sitenumber])
+        # obs1 = Variable(name=obs.name,unit=obs.unit,time=obs.time,data=obs.data[:,0,0:self.sitenumber])
+        # mod1 = Variable(name=mod.name, unit=mod.unit, time=mod.time, data=mod.data[:, 0, 0:self.sitenumber])
 
-        return obs1, mod1
+        return obs, mod
 
     def confront(self, m):
+
+
 
         # output_path = self.output_path
         output_path = '/Users/lli51/Documents/ILAMB_sample/test_output/'
@@ -1490,11 +1552,10 @@ class ConfSite(Confrontation):
 
                 ############################### Taylor graphs
 
-                fig_TimeSeries_TaylorGram = Plot_TimeSeries_TaylorGram(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region)
+                fig_TimeSeries_TaylorGram = Plot_TimeSeries_TaylorGram(obs1, mod1_1, siteid, col_num=modnumber-1, site_name=region)
                 fig_TimeSeries_TaylorGram.savefig(os.path.join(output_path, "%s_%s_timeseries_taylorgram.png" % (mname, region)))
 
                 figannual_taylorgram = Plot_TimeSeries_TaylorGram_annual(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region)
-                # plt.show()
                 figannual_taylorgram.savefig(os.path.join(output_path, "%s_%s_timeseries_taylorgram_annual.png" % (mname, region)))
 
                 fighourofda_taylorgram = Plot_TimeSeries_TaylorGram_hourofday(obs1, mod1_1, siteid, col_num=modnumber-1,site_name=region)
@@ -1852,12 +1913,12 @@ class ConfSite(Confrontation):
 
 
 #
-data_file = '/Users/lli51/Documents/ILAMB_sample/DATA/rsus/CERES/rsus_0.5x0.5.nc'
-m = ModelResult('/Users/lli51/Documents/ILAMB_sample/MODELS/', modelname='mod1')
-#
-# # # data_file = '/Users/lli51/Downloads/alldata/obs_FSH_model_ilamb.nc4'
-# # # m = ModelResult('/Users/lli51/Downloads/alldata/171206_ELMv0_CN_FSH_model_ilamb.nc4', modelname='mod1')
+# data_file = '/Users/lli51/Documents/ILAMB_sample/DATA/rsus/CERES/rsus_0.5x0.5.nc'
+# m = ModelResult('/Users/lli51/Documents/ILAMB_sample/MODELS/', modelname='mod1')
 # #
-c = ConfSite(source=data_file, name='CERES', variable='rsus')
+data_file = '/Users/lli51/Downloads/alldata/obs_FSH_model_ilamb.nc4'
+m = ModelResult('/Users/lli51/Downloads/alldata/171206_ELMv0_CN_FSH_model_ilamb.nc4', modelname='mod1')
+# #
+c = ConfSite(source=data_file, name='CERES', variable='FSH')
 c.confront(m)
 c.generateHtml()
