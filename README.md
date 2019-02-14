@@ -66,11 +66,11 @@ RegionsFile = Dataset('/Users/lli51/Desktop/IGBPa_1198.map.nc')
 Additonal regions can be added by typing in the following code in the file.
 ```python
 regions.append("tena")
-        Geo_regions.append("tena")
-        self.lowerlatbound.append(30.25)
-        self.upperlatbound.append(49.75)
-        self.lowerlonbound.append(-125.25)
-        self.upperlonbound.append(-66.25)
+Geo_regions.append("tena")
+self.lowerlatbound.append(30.25)
+self.upperlatbound.append(49.75)
+self.lowerlonbound.append(-125.25)
+self.upperlonbound.append(-66.25)
  ```       
  
  All the variables are read in at the beginning of the confrantion function, with dataset function from netCDF4, where each file is stored seperately in each file.
