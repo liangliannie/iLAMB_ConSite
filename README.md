@@ -9,7 +9,7 @@ This Python Package, name PyE3SM, is established to comprehensively examine the 
 Mainly, PyE3SM is trying to evaluate the land models throught four aspects: Time Series, Cycle Means, Frequency, and Responses.
 The package can be run directly under the environment of iLAMB, since it has been merged as a confrontation file of iLAMB.
 
-```python 
+```bash 
 python ConfSite2.py
 python ConfSite3.py
 ```
@@ -52,9 +52,8 @@ lon0 = np.array([ 11.31750011,  148.1519928 ,    4.52059984,
 ```
 We use the following regions to add the sites which should be included into the same habitat pattern. 
 ```python
-        # obs = Variable(filename='/Users/lli51/Downloads/alldata/obs_FSH_model_ilamb.nc4',
-        #                  variable_name="FSH")
-        RegionsFile = Dataset('/Users/lli51/Desktop/IGBPa_1198.map.nc')
+
+RegionsFile = Dataset('/Users/lli51/Desktop/IGBPa_1198.map.nc')
         
 ```
 Additonal regions can be added by typing in the following code in the file.
@@ -70,22 +69,22 @@ regions.append("tena")
  All the variables are read in at the beginning of the confrantion function, with dataset function from netCDF4, where each file is stored seperately in each file.
  
  ```python
-         v1obs = Dataset('/Users/lli51/Downloads/alldata/obs_FSH_model_ilamb.nc4')['FSH']
-        v1mod1 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv0_CN_FSH_model_ilamb.nc4')['FSH']
-        v1mod2 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv1_CN_FSH_model_ilamb.nc4')['FSH']
+v1obs = Dataset('/Users/lli51/Downloads/alldata/obs_FSH_model_ilamb.nc4')['FSH']
+v1mod1 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv0_CN_FSH_model_ilamb.nc4')['FSH']
+v1mod2 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv1_CN_FSH_model_ilamb.nc4')['FSH']
 
-        v2obs = Dataset('/Users/lli51/Downloads/alldata/obs_GPP_model_ilamb.nc4')['GPP']
-        v2mod1 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv0_CN_GPP_model_ilamb.nc4')['GPP']
-        v2mod2 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv1_CN_GPP_model_ilamb.nc4')['GPP']
+v2obs = Dataset('/Users/lli51/Downloads/alldata/obs_GPP_model_ilamb.nc4')['GPP']
+v2mod1 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv0_CN_GPP_model_ilamb.nc4')['GPP']
+v2mod2 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv1_CN_GPP_model_ilamb.nc4')['GPP']
 
-        v3obs = Dataset('/Users/lli51/Downloads/alldata/obs_NEE_model_ilamb.nc4')['NEE']
-        v3mod1 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv0_CN_NEE_model_ilamb.nc4')['NEE']
-        v3mod2 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv1_CN_NEE_model_ilamb.nc4')['NEE']
+v3obs = Dataset('/Users/lli51/Downloads/alldata/obs_NEE_model_ilamb.nc4')['NEE']
+v3mod1 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv0_CN_NEE_model_ilamb.nc4')['NEE']
+v3mod2 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv1_CN_NEE_model_ilamb.nc4')['NEE']
 
-        v4obs = Dataset('/Users/lli51/Downloads/alldata/obs_ER_model_ilamb.nc4')['ER']
-        v4mod1 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv0_CN_ER_model_ilamb.nc4')['ER']
-        v4mod2 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv1_CN_ER_model_ilamb.nc4')['ER']
-        times = Dataset('/Users/lli51/Downloads/alldata/obs_FSH_model_ilamb.nc4')['time']
+v4obs = Dataset('/Users/lli51/Downloads/alldata/obs_ER_model_ilamb.nc4')['ER']
+v4mod1 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv0_CN_ER_model_ilamb.nc4')['ER']
+v4mod2 = Dataset('/Users/lli51/Downloads/alldata/171206_ELMv1_CN_ER_model_ilamb.nc4')['ER']
+times = Dataset('/Users/lli51/Downloads/alldata/obs_FSH_model_ilamb.nc4')['time']
  ```
 The example output of the package can be found below:
 [Webpage CERES.html](http://volweb.utk.edu/~lli51/ol2/CERES.html)
