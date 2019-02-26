@@ -459,7 +459,7 @@ def wavelet_plot(var, time, data_unnorm, dtmin, result, fig, unit='units', m=Non
 
     # ax1.plot(time, data_unnorm)
     ax1.axis('tight')
-    ax1.set_ylabel(unit, fontsize=8)
+    ax1.set_ylabel(unit, fontsize=16)
     ax1.set_title('%s' % var, fontsize=16)
     ax1.yaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax1.grid(True)
@@ -476,9 +476,9 @@ def wavelet_plot(var, time, data_unnorm, dtmin, result, fig, unit='units', m=Non
     ax3.tick_params(labelsize=4)
     # ax3.set_ylim(-0.3,0.3)
     # ax3.set_ylim([np.min(result['joint_wavelet']),np.max(result['joint_wavelet'])])
-    ax3.set_xlabel('Time', fontsize=6)
-    ax3.set_ylabel('Amplitude', fontsize=6)
-    ax3.set_title('$\psi$ (t/s) {0} in time domain'.format(result['mother']), fontsize=8)
+    ax3.set_xlabel('Time', fontsize=16)
+    ax3.set_ylabel('Amplitude', fontsize=16)
+    ax3.set_title('$\psi$ (t/s) {0} in time domain'.format(result['mother']), fontsize=16)
     # ----------------------------------------------------------------------------------------------------------------#
     # ax4.plot(result['ondaleta'],'k')
     # ax4.set_xlabel('Frequency', fontsize=10)
@@ -501,7 +501,7 @@ def wavelet_plot(var, time, data_unnorm, dtmin, result, fig, unit='units', m=Non
         np.log2(result['period'][-1]) + 1), alpha=0.5, hatch='/')
     position = fig.add_axes([0.2, -0., 0.6, 0.01])
     cbar = plt.colorbar(pc, cax=position, orientation='horizontal')
-    cbar.set_label('Power', fontsize=8)
+    cbar.set_label('Power', fontsize=16)
     yt = range(int(np.log2(result['period'][0])), int(np.log2(result['period'][-1]) + 1))  # create the vector of periods
     Yticks = [float(math.pow(2, p)) for p in yt]  # make 2^periods
     # Yticks = [int(i) for i in Yticks]
@@ -510,8 +510,8 @@ def wavelet_plot(var, time, data_unnorm, dtmin, result, fig, unit='units', m=Non
     ax2.set_ylim(ymin=(np.log2(np.min(result['period']))), ymax=(
         np.log2(np.max(result['period']))))
     ax2.set_ylim(ax2.get_ylim()[::-1])
-    ax2.set_xlabel('Time', fontsize=8)
-    ax2.set_ylabel('Period', fontsize=8)
+    ax2.set_xlabel('Time', fontsize=16)
+    ax2.set_ylabel('Period', fontsize=16)
     ax2.axhline(y=10.5, xmin=0, xmax=1, linewidth=2, color='k')
     ax2.axhline(y=13.3, xmin=0, xmax=1, linewidth=2, color='k')
 
@@ -536,10 +536,10 @@ def wavelet_plot(var, time, data_unnorm, dtmin, result, fig, unit='units', m=Non
         result['period']), 'b', label='Wavelet spectrum')
     ax5.plot(result['global_signif'], np.log2(
         result['period']), 'r--', label='95% confidence spectrum')
-    ax5.legend(loc=0, fontsize=8)
+    ax5.legend(loc=0, fontsize=16)
     ax5.set_xlim(0, 1.25 * np.max(result['global_ws']))
-    ax5.set_xlabel('Power', fontsize=8)
-    ax5.set_title('Global Wavelet Spectrum', fontsize=8)
+    ax5.set_xlabel('Power', fontsize=16)
+    ax5.set_title('Global Wavelet Spectrum', fontsize=16)
     # save fig
     # plt.savefig('%s.png' % var, dpi=300)
     # gs1.tight_layout(fig)
@@ -566,13 +566,13 @@ def plot_cross(var, cross_power, phase_angle, time, result, result1, fig):
     ax2 = plt.subplot(gs1[1:4, :])# axisbg='#C0C0C0')
     # plot timeseries
     ax1.plot(time, result['data'])
-    ax1.set_ylabel('Amplitude', fontsize=8)
+    ax1.set_ylabel('Amplitude', fontsize=16)
     ax1.axis('tight')
     ax3 = ax1.twinx()
     ax3.plot(time, result1['data'], color='c')
     ax3.set_ylabel(result1['name'])
     ax3.axis('tight')
-    ax1.set_title('%s' % var, fontsize=8)
+    ax1.set_title('%s' % var, fontsize=16)
     ax1.yaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax1.grid(True)
     ax1.xaxis.set_visible(False)
@@ -616,8 +616,8 @@ def plot_cross(var, cross_power, phase_angle, time, result, result1, fig):
     ax2.set_ylim(ymin=(np.log2(result['period'][0])), ymax=(
         np.log2(result['period'][-1])))
     ax2.invert_yaxis()
-    ax2.set_xlabel('Time', fontsize=8)
-    ax2.set_ylabel('Period', fontsize=8)
+    ax2.set_xlabel('Time', fontsize=16)
+    ax2.set_ylabel('Period', fontsize=16)
     ax2.axhline(y=10.5, xmin=0, xmax=1, linewidth=2, color='k')
     ax2.axhline(y=13.3, xmin=0, xmax=1, linewidth=2, color='k')
     ax2.set_title('Cross Power')
@@ -645,11 +645,11 @@ def plot_cohere(var, coherence, time, result, result1, fig):
 
     # plot timeseries
     ax1.plot(time, result['data'])
-    ax1.set_ylabel('Amplitude', fontsize=8)
+    ax1.set_ylabel('Amplitude', fontsize=16)
     ax3 = ax1.twinx()
     ax3.plot(time, result1['data'], color='red')
     ax3.set_ylabel(result1['name'])
-    ax1.set_title('%s' % var, fontsize=8)
+    ax1.set_title('%s' % var, fontsize=16)
     ax1.yaxis.set_major_locator(MaxNLocator(prune='lower'))
     ax1.grid(True)
     ax1.xaxis.set_visible(False)
@@ -674,8 +674,8 @@ def plot_cohere(var, coherence, time, result, result1, fig):
     ax2.set_ylim(ymin=(np.log2(result['period'][0])), ymax=(
         np.log2(result['period'][-1])))
     ax2.invert_yaxis()
-    ax2.set_xlabel('Time', fontsize=8)
-    ax2.set_ylabel('Period', fontsize=8)
+    ax2.set_xlabel('Time', fontsize=16)
+    ax2.set_ylabel('Period', fontsize=16)
     # ax2.axhline(y=10.5, xmin=0, xmax=1, linewidth=2, color='k')
     # ax2.axhline(y=13.3, xmin=0, xmax=1, linewidth=2, color='k')
     ax2.set_title('Coherence')

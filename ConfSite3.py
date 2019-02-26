@@ -39,7 +39,7 @@ import waipy
 
 import matplotlib.pyplot as plt
 
-SMALL_SIZE = 16
+SMALL_SIZE = 17
 MEDIUM_SIZE = 22
 BIGGER_SIZE = 22
 TitleLocation = 0.95
@@ -116,7 +116,7 @@ def TimeSeriesOneModel_Plot(ObsData, ModData, FigTitle= None, XLabel='Obs.Name',
     ax1.set_yticklabels([])
     plt.ylabel('Existence')
     ax2 = plt.subplot2grid((3, 2), (1, 0), rowspan=2, colspan=2, sharex=ax1)
-    ax2.plot(Dates, ObsData, 'k-', label='Obs', linewidth=1.0)
+    ax2.plot(Dates, ObsData, 'k-', label='OBS', linewidth=1.0)
     ax2.plot(Dates, np.ma.masked_where(pd.isna(ObsData), ModData), '-', label=ModLegend, linewidth=1.0)
     # ax2.fill_between(Dates, ObsData, ModData, where=(ObsData > ModData), color='r')
     # ax2.fill_between(Dates, ObsData, ModData, where=(ModData < ObsData), color='g')
@@ -131,7 +131,7 @@ def TimeSeriesOneModel_Plot(ObsData, ModData, FigTitle= None, XLabel='Obs.Name',
 
 
 def CyclesOneModel_Plot(ObsData0, ModData0, FrequencyRule=None, FigTitle='SiteName', XLabel='Hours of A Day',
-                        YLabel='Obs.Name(Obs.Unit)', ModLegend='Mod',
+                        YLabel='Obs.Name(Obs.Unit)', ModLegend='MOD',
                         FigName=None):
     """A function to plot Cycles figures
 
@@ -180,6 +180,7 @@ def CyclesOneModel_Plot(ObsData0, ModData0, FrequencyRule=None, FigTitle='SiteNa
         data2 = [ObsData[ObsData.index.month == i].std() for i in range(12)]
         data3 = [ModData[ModData.index.month == i].mean() for i in range(12)]
         data4 = [ModData[ModData.index.month == i].std() for i in range(12)]
+
         obs_Cycle_mean = [np.ma.mean([data1[11], data1[0], data1[1]]), np.ma.mean([data1[4], data1[2], data1[3]]),
                  np.ma.mean([data1[7], data1[5], data1[6]]), np.ma.mean([data1[10], data1[8], data1[9]])]
         obs_Cycle_var = [np.ma.mean([data2[11], data2[0], data2[1]]), np.ma.mean([data2[4], data2[2], data2[3]]),
@@ -203,7 +204,7 @@ def CyclesOneModel_Plot(ObsData0, ModData0, FrequencyRule=None, FigTitle='SiteNa
     plt.ylabel('Existence')
 
     ax2 = plt.subplot2grid((3, 2), (1, 0), rowspan=2, colspan=2, sharex=ax1)
-    ax2.plot(CycleTime, obs_Cycle_mean, 'k-', label='Obs', linewidth=1.0)
+    ax2.plot(CycleTime, obs_Cycle_mean, 'k-', label='OBS', linewidth=1.0)
     ax2.plot(CycleTime, np.ma.masked_where(pd.isna(obs_Cycle_mean), mod_Cycle_mean), '-', label=ModLegend,
              linewidth=1.0)
     ax2.fill_between(CycleTime, np.asarray(obs_Cycle_mean) - np.asarray(obs_Cycle_var),
@@ -214,13 +215,13 @@ def CyclesOneModel_Plot(ObsData0, ModData0, FrequencyRule=None, FigTitle='SiteNa
                      np.asarray(mod_Cycle_mean) + np.asarray(mod_Cycle_var), alpha=0.2, edgecolor='#1B2ACC',
                      linewidth=0.5, linestyle='dashdot', antialiased=True)
 
-    if XLabel == 'Hours of a Day':
-        plt.xticks(range(24), [str(i) + ':00' for i in range(24)])
-    elif XLabel == 'Days of a year':
+    if XLabel[0] == 'H':
+        plt.xticks(range(24), [str(i) + '' for i in range(24)])
+    elif XLabel[0] == 'D':
         plt.xticks(range(0, 365, 60), [str(i) for i in range(0, 365, 60)])
-    elif XLabel == 'Months of a year':
+    elif XLabel[0] == 'M':
         plt.xticks(range(13), calendar.month_name[1:13], rotation=20)
-    elif XLabel == 'Seasons of a year':
+    elif XLabel[0] == 'S':
         plt.xticks(range(4), ('DJF', 'MAM', 'JJA', 'SON'))
 
     plt.ylabel(YLabel)
@@ -233,7 +234,7 @@ def CyclesOneModel_Plot(ObsData0, ModData0, FrequencyRule=None, FigTitle='SiteNa
         return fig
 
 
-def PDFCDFOneModel_Plot(obs_one, mod_one, FigTitle='SiteName', XLabel='Obs.Name(Obs.Unit)', YLabel=['Density Distribution(PDF)', 'Cumulative Distribution(CDF)'], ModLegend='Mod',FigName=None):
+def PDFCDFOneModel_Plot(obs_one, mod_one, FigTitle='SiteName', XLabel='Obs.Name(Obs.Unit)', YLabel=['Density Distribution(PDF)', 'Cumulative Distribution(CDF)'], ModLegend='MOD',FigName=None):
     """A function to plot timeseries figures
 
     :param ObsData: Pandas.DataFrame[] of one column (defined observation data of one site)
@@ -248,21 +249,22 @@ def PDFCDFOneModel_Plot(obs_one, mod_one, FigTitle='SiteName', XLabel='Obs.Name(
     """
 # from scipy.stats import gaussian_kde
     fig = plt.figure(figsize=(9, 9))
-    plt.suptitle(FigTitle, y=TitleLocation)
+    plt.suptitle(FigTitle, y=TitleLocation+0.2)
     ax = plt.subplot2grid((4,2), (0,0), rowspan=2, colspan=2)
-    sns.kdeplot(obs_one.dropna(), shade=True, ax=ax,  color="k", label='OBS(PDF)')
-    sns.kdeplot(mod_one[~pd.isna(obs_one)].dropna(), shade=True, ax=ax, label=ModLegend+'(PDF)')
+    sns.kdeplot(obs_one.dropna(), shade=True, ax=ax,  color="k", label='OBS')
+    sns.kdeplot(mod_one[~pd.isna(obs_one)].dropna(), shade=True, ax=ax, label=ModLegend)
     # sns.kdeplot(mod_one.dropna(), shade=True, ax=ax, label='MOD(PDF)')
     plt.xlabel(XLabel)
     plt.ylabel(YLabel[0])
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2)
 
     ax2 = plt.subplot2grid((4,2), (2,0), rowspan=2, colspan=2, sharex=ax)
-    ax2.hist(obs_one.dropna(), density = 1, cumulative=1, histtype='stepfilled', bins=300, label='OBS(CDF)', alpha=0.6, edgecolor='black')
-    ax2.hist(mod_one[~pd.isna(obs_one)].dropna(), density = 1, cumulative=1, histtype='stepfilled', bins=300, label=ModLegend+'(CDF)', alpha=0.5)
+    ax2.hist(obs_one.dropna(), density = 1, cumulative=1, histtype='stepfilled', bins=300, label='OBS', alpha=0.6, edgecolor='black')
+    ax2.hist(mod_one[~pd.isna(obs_one)].dropna(), density = 1, cumulative=1, histtype='stepfilled', bins=300, label=ModLegend, alpha=0.5)
 
     plt.xlabel(XLabel)
     plt.ylabel(YLabel[1])
+    plt.tight_layout()
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2)
     if FigName is not None:
         fig.savefig(FigName)
@@ -519,7 +521,7 @@ def Plot_TimeSeries_TaylorGram_cycles(obs, mmod, col_num=-1, FigName='Three Diff
     return fig0
 
 
-def TimeSeriesMoreModel_Plot(ObsData, ModData, FigTitle= None, XLabel='Obs.Name', YLabel='Obs.Unit', ModLegend='Mod',
+def TimeSeriesMoreModel_Plot(ObsData, ModData, FigTitle= None, XLabel='Obs.Name', YLabel='Obs.Unit', ModLegend='MOD',
                             FigName=None):
     """A function to plot timeseries figures
 
@@ -543,7 +545,7 @@ def TimeSeriesMoreModel_Plot(ObsData, ModData, FigTitle= None, XLabel='Obs.Name'
     ax1.set_yticklabels([])
     plt.ylabel('Existence')
     ax2 = plt.subplot2grid((3, 2), (1, 0), rowspan=2, colspan=2, sharex=ax1)
-    ax2.plot(Dates, ObsData, 'k-', label='Obs', linewidth=1.0)
+    ax2.plot(Dates, ObsData, 'k-', label='OBS', linewidth=1.0)
     for i, m in enumerate(ModData):
         ax2.plot(Dates, np.ma.masked_where(pd.isna(ObsData), m), '-', label=ModLegend+str(i+1), linewidth=1.0)
     # ax2.fill_between(Dates, ObsData, ModData, where=(ObsData > ModData), color='r')
@@ -559,7 +561,7 @@ def TimeSeriesMoreModel_Plot(ObsData, ModData, FigTitle= None, XLabel='Obs.Name'
 
 
 def CyclesMoreModel_Plot(ObsData0, ModData0, FrequencyRule=None, FigTitle='SiteName', XLabel='Hours of A Day',
-                        YLabel='Obs.Name(Obs.Unit)', ModLegend='Mod',
+                        YLabel='Obs.Name(Obs.Unit)', ModLegend='MOD',
                         FigName=None):
     """A function to plot Cycles figures
 
@@ -631,7 +633,7 @@ def CyclesMoreModel_Plot(ObsData0, ModData0, FrequencyRule=None, FigTitle='SiteN
     plt.ylabel('Existence')
 
     ax2 = plt.subplot2grid((3, 2), (1, 0), rowspan=2, colspan=2, sharex=ax1)
-    ax2.plot(CycleTime, obs_Cycle_mean, 'k-', label='Obs', linewidth=1.0)
+    ax2.plot(CycleTime, obs_Cycle_mean, 'k-', label='OBS', linewidth=1.0)
 
     ax2.fill_between(CycleTime, np.asarray(obs_Cycle_mean) - np.asarray(obs_Cycle_var),
                      np.asarray(obs_Cycle_mean) + np.asarray(obs_Cycle_var), alpha=0.2, edgecolor='#1B2ACC',
@@ -645,13 +647,13 @@ def CyclesMoreModel_Plot(ObsData0, ModData0, FrequencyRule=None, FigTitle='SiteN
         #                  np.asarray(mod_Cycle_mean) + np.asarray(mod_Cycle_var), alpha=0.2, edgecolor='#1B2ACC',
         #                  linewidth=0.5, linestyle='dashdot', antialiased=True)
 
-    if XLabel == 'Hours of A Day':
-        plt.xticks(range(24), [str(i) + ':00' for i in range(24)])
-    elif XLabel == 'Days of A year':
+    if XLabel[0] == 'H':
+        plt.xticks(range(24), [str(i) + '' for i in range(24)])
+    elif XLabel[0] == 'D':
         plt.xticks(range(0, 365, 60), [str(i) for i in range(0, 365, 60)])
-    elif XLabel == 'Months of A year':
+    elif XLabel[0] == 'M':
         plt.xticks(range(13), calendar.month_name[1:13], rotation=20)
-    elif XLabel == 'Seasons of A year':
+    elif XLabel[0] == 'S':
         plt.xticks(range(4), ('DJF', 'MAM', 'JJA', 'SON'))
 
     plt.ylabel(YLabel)
@@ -664,7 +666,7 @@ def CyclesMoreModel_Plot(ObsData0, ModData0, FrequencyRule=None, FigTitle='SiteN
         return fig
 
 
-def PDFCDFMoreModel_Plot(obs_one, mod_one, FigTitle='SiteName', XLabel='Obs.Name(Obs.Unit)', YLabel=['Density Distribution(PDF)', 'Cumulative Distribution(CDF)'], ModLegend='Mod',FigName=None):
+def PDFCDFMoreModel_Plot(obs_one, mod_one, FigTitle='SiteName', XLabel='Obs.Name(Obs.Unit)', YLabel=['Density Distribution(PDF)', 'Cumulative Distribution(CDF)'], ModLegend='MOD',FigName=None):
     """A function to plot timeseries figures
 
     :param ObsData: Pandas.DataFrame[] of one column (defined observation data of one site)
@@ -679,24 +681,25 @@ def PDFCDFMoreModel_Plot(obs_one, mod_one, FigTitle='SiteName', XLabel='Obs.Name
     """
 # from scipy.stats import gaussian_kde
     fig = plt.figure(figsize=(9, 9))
-    plt.suptitle(FigTitle, y=TitleLocation)
+    plt.suptitle(FigTitle, y=TitleLocation+0.2)
     ax = plt.subplot2grid((4,2), (0,0), rowspan=2, colspan=2)
-    sns.kdeplot(obs_one.dropna(), shade=True, ax=ax,  color="k", label='OBS(PDF)')
+    sns.kdeplot(obs_one.dropna(), shade=True, ax=ax,  color="k", label='OBS')
     for i, m in enumerate(mod_one):
-        sns.kdeplot(m[~pd.isna(obs_one)].dropna(), shade=True, ax=ax, label=ModLegend+str(i+1)+'(PDF)')
+        sns.kdeplot(m[~pd.isna(obs_one)].dropna(), shade=True, ax=ax, label=ModLegend+str(i+1))
     # sns.kdeplot(mod_one.dropna(), shade=True, ax=ax, label='MOD(PDF)')
     plt.xlabel(XLabel)
     plt.ylabel(YLabel[0])
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2)
 
     ax2 = plt.subplot2grid((4,2), (2,0), rowspan=2, colspan=2, sharex=ax)
-    ax2.hist(obs_one.dropna(), density = 1, cumulative=1, histtype='stepfilled', bins=300, label='OBS(CDF)', alpha=0.6, edgecolor='black')
+    ax2.hist(obs_one.dropna(), density = 1, cumulative=1, histtype='stepfilled', bins=300, label='OBS', alpha=0.6, edgecolor='black')
     for i, m in enumerate(mod_one):
-        ax2.hist(m[~pd.isna(obs_one)].dropna(), density = 1, cumulative=1, histtype='stepfilled', bins=300, label=ModLegend+str(i+1)+'(CDF)', alpha=0.5)
+        ax2.hist(m[~pd.isna(obs_one)].dropna(), density = 1, cumulative=1, histtype='stepfilled', bins=300, label=ModLegend+str(i+1), alpha=0.5)
 
     plt.xlabel(XLabel)
     plt.ylabel(YLabel[1])
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2)
+    plt.tight_layout()
     if FigName is not None:
         fig.savefig(FigName)
     else:
@@ -722,17 +725,17 @@ def Plot_response2(obs1, mod1, obs2, mod2, XLabel='obs1.name +(obs1.unit)', YLab
     ax0 = fig0.add_subplot(1, 1, 1)
     x1 = np.ma.masked_invalid(obs1)
     x2 = np.ma.masked_invalid(obs2)
-    ax0.plot(x1, x2, 'k.', label='Obs')
-    if col <0:
+    ax0.plot(x1, x2, 'k.', label='OBS')
+    if len(mod1) > 1:
         for i, (m1, m2) in enumerate(zip(mod1, mod2)):
             y1 = np.ma.masked_where(pd.isna(x1), m1)
             y2 = np.ma.masked_where(pd.isna(x2), m2)
-            ax0.plot(y1, y2, '.', label='Mod' + str(i + 1), color=ColorBook[i])
+            ax0.plot(y1, y2, '.', label='MOD' + str(i + 1), color=ColorBook[i])
     else:
         for i, (m1, m2) in enumerate(zip(mod1, mod2)):
             y1 = np.ma.masked_where(pd.isna(x1), m1)
             y2 = np.ma.masked_where(pd.isna(x2), m2)
-            ax0.plot(y1, y2, '.', label='Mod' + str(col + 1), color=ColorBook[i])
+            ax0.plot(y1, y2, '.', label='MOD' + str(col + 1), color=ColorBook[i])
 
 
     ax0.set_xlabel(XLabel)
@@ -770,7 +773,7 @@ def binPlot(X, Y, lab=None, ax=None, numBins=8, xmin=None, xmax=None, c=None):
     xx = np.array([np.ma.mean((bins[binInd], bins[binInd + 1])) for binInd in range(numBins)])
     yy = np.array([np.ma.mean(Y[(X > bins[binInd]) & (X <= bins[binInd + 1])]) for binInd in range(numBins)])
     yystd = 0.5 * np.array([np.std(Y[(X > bins[binInd]) & (X <= bins[binInd + 1])]) for binInd in range(numBins)])
-    if lab == 'Observed':
+    if lab == 'OBS':
         ax.plot(xx, yy, 'k-', label=lab)
         ax.errorbar(xx, yy, yerr=yystd, fmt='o', elinewidth=2, capthick=1, capsize=4, color='k')
     else:
@@ -801,7 +804,7 @@ def Plot_response2_error(obs1, mod1, obs2, mod2, XLabel='obs1.name +(obs1.unit)'
     x1 = np.ma.masked_invalid(obs1)
     x2 = np.ma.masked_invalid(obs2)
     #     ax0.plot(x1, x2, 'k.', label='Obs')
-    binPlot(x1, x2, ax=ax0, numBins=10, lab='Observed')
+    binPlot(x1, x2, ax=ax0, numBins=10, lab='OBS')
 
     if len(mod1)>1:
         for i, (m1, m2) in enumerate(zip(mod1, mod2)):
@@ -809,14 +812,14 @@ def Plot_response2_error(obs1, mod1, obs2, mod2, XLabel='obs1.name +(obs1.unit)'
             #         y2 = np.ma.masked_where(pd.isna(x2),m2)
             #         ax0.plot(y1, y2,'.', label='mod'+str(i+1))
             y1, y2 = m1, m2
-            binPlot(y1, y2, ax=ax0, numBins=10, lab='Mod' + str(i + 1), c=ColorBook[i])
+            binPlot(y1, y2, ax=ax0, numBins=10, lab='MOD' + str(i + 1), c=ColorBook[i])
     else:
         for i, (m1, m2) in enumerate(zip(mod1, mod2)):
             #         y1 = np.ma.masked_where(pd.isna(x1),m1)
             #         y2 = np.ma.masked_where(pd.isna(x2),m2)
             #         ax0.plot(y1, y2,'.', label='mod'+str(i+1))
             y1, y2 = m1, m2
-            binPlot(y1, y2, ax=ax0, numBins=10, lab='Mod' + str(col + 1), c=ColorBook[i])
+            binPlot(y1, y2, ax=ax0, numBins=10, lab='MOD' + str(col + 1), c=ColorBook[i])
 
     ax0.set_xlabel(XLabel)
     ax0.set_ylabel(YLabel)
@@ -887,9 +890,9 @@ def Plot_response4(obs1, mod1, obs2, mod2, obs3, mod3, obs4, mod4, FigTitle='obs
         ax0 = fig0.add_subplot(len(mod1) + 1, 1, i + 2, projection='3d')
         ax0.scatter(y1, y2, y3, c=y4, cmap=plt.hot())
         if col_num < 0:
-            ax0.set_title('Mod' + str(i + 1) + ':' + FigTitle)
+            ax0.set_title('MOD' + str(i + 1) + ':' + FigTitle)
         else:
-            ax0.set_title('Mod' + str(col + 1) + ':' + FigTitle)
+            ax0.set_title('MOD' + str(col + 1) + ':' + FigTitle)
         ax0.set_xlabel(XLabel)
         ax0.set_ylabel(YLabel)
         ax0.set_zlabel(ZLabel)
@@ -983,7 +986,7 @@ def PlotFourVariableCorr(obs1, mod1, obs2, mod2, obs3, mod3, obs4, mod4, FigTitl
     corr0 = partial_corr(result.dropna())
     fig0 = plt.figure(figsize=(9, 9))
     ax0 = fig0.add_subplot(1, 1, 1, projection='3d')
-    ax0.scatter(corr0[0, 1], corr0[0, 2], corr0[0, 3], label='Obs', s=60)
+    ax0.scatter(corr0[0, 1], corr0[0, 2], corr0[0, 3], label='OBS', s=60)
     if isinstance(score, list):
         score.append((corr0[0, 1], corr0[0, 2], corr0[0, 3]))
 
@@ -1000,7 +1003,7 @@ def PlotFourVariableCorr(obs1, mod1, obs2, mod2, obs3, mod3, obs4, mod4, FigTitl
             frames = [y1, y2, y3, y4]
             result = pd.concat(frames, axis=1)
             corr0 = partial_corr(result.dropna())
-            ax0.scatter(corr0[0, 1], corr0[0, 2], corr0[0, 3], label='Mod' + str(i + 1), s=60)
+            ax0.scatter(corr0[0, 1], corr0[0, 2], corr0[0, 3], label='MOD' + str(i + 1), s=60)
             if isinstance(score, list):
                 score.append((corr0[0, 1], corr0[0, 2], corr0[0, 3]))
     else:
@@ -1010,11 +1013,20 @@ def PlotFourVariableCorr(obs1, mod1, obs2, mod2, obs3, mod3, obs4, mod4, FigTitl
             frames = [y1, y2, y3, y4]
             result = pd.concat(frames, axis=1)
             corr0 = partial_corr(result.dropna())
-            ax0.scatter(corr0[0, 1], corr0[0, 2], corr0[0, 3], label='Mod' + str(col_num), s=60)
+            ax0.scatter(corr0[0, 1], corr0[0, 2], corr0[0, 3], label='MOD' + str(col_num), s=60)
 
     ax0.set_xlabel(XLabel)
     ax0.set_ylabel(YLabel)
     ax0.set_zlabel(ZLabel)
+    ax0.xaxis.set_major_locator(plt.MaxNLocator(2))
+    ax0.yaxis.set_major_locator(plt.MaxNLocator(2))
+    ax0.zaxis.set_major_locator(plt.MaxNLocator(2))
+    ax0.tick_params(pad=-5)
+    format_func = lambda x, t: "{:.1E}".format(x)
+    ax0.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
+    ax0.yaxis.set_major_formatter(plt.FuncFormatter(format_func))
+    ax0.zaxis.set_major_formatter(plt.FuncFormatter(format_func))
+
     for label in ax0.zaxis.get_ticklabels():
         label.set_rotation(-40)
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2)
@@ -1035,17 +1047,17 @@ def plot_variable_matrix_trend_and_detrend(data, dtrend_data, variable_list, col
                              figsize=(15, 15))
     fig.subplots_adjust(wspace=0.03, hspace=0.03)
     plt.suptitle(site_name, y=TitleLocation)
-    plt.figtext(0.99, 0.01, '* stands for the detrended data', horizontalalignment='right')
+    plt.figtext(0.99, 0.01, 'Regular trending data while * denotes for being detrended', horizontalalignment='right')
     ax_cb = fig.add_axes([.91, .3, .03, .4])
 
     for j in range(len(variable_list)):  # models
         for k in range(j, len(variable_list)):
             array = data[:, k, j]  ## Put n sites in one picture
-            nam = ['Obs('+str(array[0])[:6]+')']
+            nam = ['OBS('+str(array[0])[:6]+')']
             if col_num ==2:
-                nam.extend(['Mod'+str(i+1)+'('+str(array[i+1])[:4]+')' for i in range(len(array)-1)])
+                nam.extend(['MOD'+str(i+1)+'('+str(array[i+1])[:4]+')' for i in range(len(array)-1)])
             else:
-                nam.extend(['Mod'+str(col_num+1)+'('+str(array[i+1])[:4]+')' for i in range(len(array)-1)])
+                nam.extend(['MOD'+str(col_num+1)+'('+str(array[i+1])[:4]+')' for i in range(len(array)-1)])
             df_cm = pd.DataFrame(array)
             annot = [nam[i] for i in range(len(array))]
             # ax.pie(array, autopct=lambda(p): '{v:d}'.format(p * sum(list(array)) / 100), startangle=90,colors=my_cmap(my_norm(color_vals)))
@@ -1064,11 +1076,11 @@ def plot_variable_matrix_trend_and_detrend(data, dtrend_data, variable_list, col
     for j in range(len(variable_list)):  # models
         for k in range(0, j):
             array = dtrend_data[:, k, j]  ## Put n sites in one picture
-            nam = ['Obs*('+str(array[0])[:6]+')']
+            nam = ['OBS*('+str(array[0])[:6]+')']
             if col_num ==2:
-                nam.extend(['Mod'+str(i+1)+'*('+str(array[i+1])[:4]+')' for i in range(len(array)-1)])
+                nam.extend(['MOD'+str(i+1)+'*('+str(array[i+1])[:4]+')' for i in range(len(array)-1)])
             else:
-                nam.extend(['Mod'+str(col_num+1)+'*('+str(array[i+1])[:4]+')' for i in range(len(array)-1)])
+                nam.extend(['MOD'+str(col_num+1)+'*('+str(array[i+1])[:4]+')' for i in range(len(array)-1)])
             df_cm = pd.DataFrame(array)
             annot = [nam[i] for i in range(len(array))]
             # ax.pie(array, autopct=lambda(p): '{v:d}'.format(p * sum(list(array)) / 100), startangle=90,colors=my_cmap(my_norm(color_vals)))
@@ -1440,7 +1452,7 @@ class ConfSite(Confrontation):
         Var4_Mod_DF_List = varsmodDF[3]
 
         ILAMB_Var_OBS = v1obs
-        IterNameModList = ["Model1", "Model2", "Models"]
+        IterNameModList = ["Model1", "Model2", "Model"]
         self.IterNameModList = IterNameModList
         for ModNum, ModName in enumerate(IterNameModList):
             # if ModName != "Models":
@@ -1511,101 +1523,101 @@ class ConfSite(Confrontation):
 
 
 
-                # fig2_variable = Plot_response2(v1_obs_one, v1_mod_one, v2_obs_one, v2_mod_one, XLabel=v1obs.name + '(' + v1obs.units + ')',
-                #            YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region], col=ModNum)
-                # fig2_variable.savefig(os.path.join(output_path, "%s_%s_response.png" % (ModName, region)),
-                #                       bbox_inches='tight')
-                #
-                # fig2_variable_error = Plot_response2_error(v1_obs_one, v1_mod_one, v2_obs_one, v2_mod_one,
-                #                      XLabel=v1obs.name + '(' + v1obs.units + ')',
-                #                      YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region], col=ModNum)
-                # fig2_variable_error.savefig(os.path.join(output_path, "%s_%s_response_error.png" % (ModName, region)),
-                #                             bbox_inches='tight')
-                # ### Seasonal Cases_response2
-                # fig2_variables1 = Plot_response2(v1_obs_h_DJF, v1_mod_h_DJF, v2_obs_h_DJF, v2_mod_h_DJF, XLabel=v1obs.name + '(' + v1obs.units + ')',
-                #            YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle='Response',s=1, col=ModNum)
-                # fig2_variables1.savefig(os.path.join(output_path, "%s_%s_response_s1.png" % (ModName, region)),
-                #                       bbox_inches='tight')
-                #
-                # fig2_variable_errors1 = Plot_response2_error(v1_obs_h_DJF, v1_mod_h_DJF, v2_obs_h_DJF, v2_mod_h_DJF,
-                #                      XLabel=v1obs.name + '(' + v1obs.units + ')',
-                #                      YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=1, col=ModNum)
-                # fig2_variable_errors1.savefig(os.path.join(output_path, "%s_%s_response_error_s1.png" % (ModName, region)),
-                #                             bbox_inches='tight')
-                #
-                # fig2_variables2 = Plot_response2(v1_obs_h_MAM, v1_mod_h_MAM, v2_obs_h_MAM, v2_mod_h_MAM, XLabel=v1obs.name + '(' + v1obs.units + ')',
-                #            YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle='Response',s=2, col=ModNum)
-                # fig2_variables2.savefig(os.path.join(output_path, "%s_%s_response_s2.png" % (ModName, region)),
-                #                       bbox_inches='tight')
-                #
-                # fig2_variable_errors2 = Plot_response2_error(v1_obs_h_MAM, v1_mod_h_MAM, v2_obs_h_MAM, v2_mod_h_MAM,
-                #                      XLabel=v1obs.name + '(' + v1obs.units + ')',
-                #                      YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=2, col=ModNum)
-                # fig2_variable_errors2.savefig(os.path.join(output_path, "%s_%s_response_error_s2.png" % (ModName, region)),
-                #                             bbox_inches='tight')
-                #
-                # fig2_variables3 = Plot_response2(v1_obs_h_JJA, v1_mod_h_JJA, v2_obs_h_JJA, v2_mod_h_JJA, XLabel=v1obs.name + '(' + v1obs.units + ')',
-                #            YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=3, col=ModNum)
-                # fig2_variables3.savefig(os.path.join(output_path, "%s_%s_response_s3.png" % (ModName, region)),
-                #                       bbox_inches='tight')
-                #
-                # fig2_variable_errors3 = Plot_response2_error(v1_obs_h_JJA, v1_mod_h_JJA, v2_obs_h_JJA, v2_mod_h_JJA,
-                #                      XLabel=v1obs.name + '(' + v1obs.units + ')',
-                #                      YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=3, col=ModNum)
-                # fig2_variable_errors3.savefig(os.path.join(output_path, "%s_%s_response_error_s3.png" % (ModName, region)),
-                #                             bbox_inches='tight')
-                #
-                # fig2_variables4 = Plot_response2(v1_obs_h_SON, v1_mod_h_SON, v2_obs_h_SON, v2_mod_h_SON, XLabel=v1obs.name + '(' + v1obs.units + ')',
-                #            YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=4, col=ModNum)
-                # fig2_variables4.savefig(os.path.join(output_path, "%s_%s_response_s4.png" % (ModName, region)),
-                #                       bbox_inches='tight')
-                #
-                # fig2_variable_errors4 = Plot_response2_error(v1_obs_h_SON, v1_mod_h_SON, v2_obs_h_SON, v2_mod_h_SON,
-                #                      XLabel=v1obs.name + '(' + v1obs.units + ')',
-                #                      YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=4, col=ModNum)
-                # fig2_variable_errors4.savefig(os.path.join(output_path, "%s_%s_response_error_s4.png" % (ModName, region)),
-                #                             bbox_inches='tight')
-                #
-                # plt.close('all')
-                #
-                # # continue
-                #
-                # print('Plot Response 4')
-                # fig4_variable = Plot_response4(v1_obs_one, v1_mod_one, v2_obs_one, v2_mod_one,v3_obs_one, v3_mod_one, v4_obs_one, v4_mod_one, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
-                #                XLabel=v1obs.name + '(' + v1obs.units + ')', YLabel=v2obs.name + '(' + v2obs.units + ')',
-                #                ZLabel=v3obs.name + '(' + v3obs.units + ')',
-                #                s=None, col_num=-1, Frequency ='M')
-                # fig4_variable.savefig(os.path.join(output_path, "%s_%s_response4.png" % (ModName, region)),
-                #                       bbox_inches='tight')
-                #
-                # fig10_s1 = Plot_response4(v1_obs_h_DJF, v1_mod_h_DJF, v2_obs_h_DJF, v2_mod_h_DJF,v3_obs_h_DJF, v3_mod_h_DJF, v4_obs_h_DJF, v4_mod_h_DJF, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
-                #                XLabel=v1obs.name + '(' + v1obs.units + ')', YLabel=v2obs.name + '(' + v2obs.units + ')',
-                #                ZLabel=v3obs.name + '(' + v3obs.units + ')',
-                #                s=1, col_num=-1, Frequency ='M')
-                # fig10_s1.savefig(os.path.join(output_path, "%s_%s_response4_s1.png" % (ModName, region)),
-                #                 bbox_inches='tight')
-                # fig10_s2 = Plot_response4(v1_obs_h_MAM, v1_mod_h_MAM, v2_obs_h_MAM, v2_mod_h_MAM,v3_obs_h_MAM, v3_mod_h_MAM, v4_obs_h_MAM, v4_mod_h_MAM, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
-                #                XLabel=v1obs.name + '(' + v1obs.units + ')', YLabel=v2obs.name + '(' + v2obs.units + ')',
-                #                ZLabel=v3obs.name + '(' + v3obs.units + ')',
-                #                s=2, col_num=-1, Frequency ='M')
-                # fig10_s2.savefig(os.path.join(output_path, "%s_%s_response4_s2.png" % (ModName, region)),
-                #                 bbox_inches='tight')
-                #
-                # fig10_s3 = Plot_response4(v1_obs_h_JJA, v1_mod_h_JJA, v2_obs_h_JJA, v2_mod_h_JJA,v3_obs_h_JJA, v3_mod_h_JJA, v4_obs_h_JJA, v4_mod_h_JJA, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
-                #                XLabel=v1obs.name + '(' + v1obs.units + ')', YLabel=v2obs.name + '(' + v2obs.units + ')',
-                #                ZLabel=v3obs.name + '(' + v3obs.units + ')',
-                #                s=3, col_num=-1, Frequency ='M')
-                # fig10_s3.savefig(os.path.join(output_path, "%s_%s_response4_s3.png" % (ModName, region)),
-                #                 bbox_inches='tight')
-                #
-                # fig10_s4 = Plot_response4(v1_obs_h_SON, v1_mod_h_SON, v2_obs_h_SON, v2_mod_h_SON,v3_obs_h_SON, v3_mod_h_SON, v4_obs_h_SON, v4_mod_h_SON, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
-                #                XLabel=v1obs.name + '(' + v1obs.units + ')', YLabel=v2obs.name + '(' + v2obs.units + ')',
-                #                ZLabel=v3obs.name + '(' + v3obs.units + ')',
-                #                s=4, col_num=-1, Frequency ='M')
-                # fig10_s4.savefig(os.path.join(output_path, "%s_%s_response4_s4.png" % (ModName, region)),
-                #                 bbox_inches='tight')
-                #
-                # plt.close('all')
+                fig2_variable = Plot_response2(v1_obs_one, v1_mod_one, v2_obs_one, v2_mod_one, XLabel=v1obs.name + '(' + v1obs.units + ')',
+                           YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region], col=ModNum)
+                fig2_variable.savefig(os.path.join(output_path, "%s_%s_response.png" % (ModName, region)),
+                                      bbox_inches='tight')
+
+                fig2_variable_error = Plot_response2_error(v1_obs_one, v1_mod_one, v2_obs_one, v2_mod_one,
+                                     XLabel=v1obs.name + '(' + v1obs.units + ')',
+                                     YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region], col=ModNum)
+                fig2_variable_error.savefig(os.path.join(output_path, "%s_%s_response_error.png" % (ModName, region)),
+                                            bbox_inches='tight')
+                ### Seasonal Cases_response2
+                fig2_variables1 = Plot_response2(v1_obs_h_DJF, v1_mod_h_DJF, v2_obs_h_DJF, v2_mod_h_DJF, XLabel=v1obs.name + '(' + v1obs.units + ')',
+                           YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle='Response',s=1, col=ModNum)
+                fig2_variables1.savefig(os.path.join(output_path, "%s_%s_response_s1.png" % (ModName, region)),
+                                      bbox_inches='tight')
+
+                fig2_variable_errors1 = Plot_response2_error(v1_obs_h_DJF, v1_mod_h_DJF, v2_obs_h_DJF, v2_mod_h_DJF,
+                                     XLabel=v1obs.name + '(' + v1obs.units + ')',
+                                     YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=1, col=ModNum)
+                fig2_variable_errors1.savefig(os.path.join(output_path, "%s_%s_response_error_s1.png" % (ModName, region)),
+                                            bbox_inches='tight')
+
+                fig2_variables2 = Plot_response2(v1_obs_h_MAM, v1_mod_h_MAM, v2_obs_h_MAM, v2_mod_h_MAM, XLabel=v1obs.name + '(' + v1obs.units + ')',
+                           YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle='Response',s=2, col=ModNum)
+                fig2_variables2.savefig(os.path.join(output_path, "%s_%s_response_s2.png" % (ModName, region)),
+                                      bbox_inches='tight')
+
+                fig2_variable_errors2 = Plot_response2_error(v1_obs_h_MAM, v1_mod_h_MAM, v2_obs_h_MAM, v2_mod_h_MAM,
+                                     XLabel=v1obs.name + '(' + v1obs.units + ')',
+                                     YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=2, col=ModNum)
+                fig2_variable_errors2.savefig(os.path.join(output_path, "%s_%s_response_error_s2.png" % (ModName, region)),
+                                            bbox_inches='tight')
+
+                fig2_variables3 = Plot_response2(v1_obs_h_JJA, v1_mod_h_JJA, v2_obs_h_JJA, v2_mod_h_JJA, XLabel=v1obs.name + '(' + v1obs.units + ')',
+                           YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=3, col=ModNum)
+                fig2_variables3.savefig(os.path.join(output_path, "%s_%s_response_s3.png" % (ModName, region)),
+                                      bbox_inches='tight')
+
+                fig2_variable_errors3 = Plot_response2_error(v1_obs_h_JJA, v1_mod_h_JJA, v2_obs_h_JJA, v2_mod_h_JJA,
+                                     XLabel=v1obs.name + '(' + v1obs.units + ')',
+                                     YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=3, col=ModNum)
+                fig2_variable_errors3.savefig(os.path.join(output_path, "%s_%s_response_error_s3.png" % (ModName, region)),
+                                            bbox_inches='tight')
+
+                fig2_variables4 = Plot_response2(v1_obs_h_SON, v1_mod_h_SON, v2_obs_h_SON, v2_mod_h_SON, XLabel=v1obs.name + '(' + v1obs.units + ')',
+                           YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=4, col=ModNum)
+                fig2_variables4.savefig(os.path.join(output_path, "%s_%s_response_s4.png" % (ModName, region)),
+                                      bbox_inches='tight')
+
+                fig2_variable_errors4 = Plot_response2_error(v1_obs_h_SON, v1_mod_h_SON, v2_obs_h_SON, v2_mod_h_SON,
+                                     XLabel=v1obs.name + '(' + v1obs.units + ')',
+                                     YLabel=v2obs.name + '(' + v2obs.units + ')', FigTitle=self.RegionsName[region],s=4, col=ModNum)
+                fig2_variable_errors4.savefig(os.path.join(output_path, "%s_%s_response_error_s4.png" % (ModName, region)),
+                                            bbox_inches='tight')
+
+                plt.close('all')
+
+                # continue
+
+                print('Plot Response 4')
+                fig4_variable = Plot_response4(v1_obs_one, v1_mod_one, v2_obs_one, v2_mod_one,v3_obs_one, v3_mod_one, v4_obs_one, v4_mod_one, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
+                               XLabel=v1obs.name + '(' + v1obs.units + ')', YLabel=v2obs.name + '(' + v2obs.units + ')',
+                               ZLabel=v3obs.name + '(' + v3obs.units + ')',
+                               s=None, col_num=-1, Frequency ='M')
+                fig4_variable.savefig(os.path.join(output_path, "%s_%s_response4.png" % (ModName, region)),
+                                      bbox_inches='tight')
+
+                fig10_s1 = Plot_response4(v1_obs_h_DJF, v1_mod_h_DJF, v2_obs_h_DJF, v2_mod_h_DJF,v3_obs_h_DJF, v3_mod_h_DJF, v4_obs_h_DJF, v4_mod_h_DJF, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
+                               XLabel=v1obs.name + '(' + v1obs.units + ')', YLabel=v2obs.name + '(' + v2obs.units + ')',
+                               ZLabel=v3obs.name + '(' + v3obs.units + ')',
+                               s=1, col_num=-1, Frequency ='M')
+                fig10_s1.savefig(os.path.join(output_path, "%s_%s_response4_s1.png" % (ModName, region)),
+                                bbox_inches='tight')
+                fig10_s2 = Plot_response4(v1_obs_h_MAM, v1_mod_h_MAM, v2_obs_h_MAM, v2_mod_h_MAM,v3_obs_h_MAM, v3_mod_h_MAM, v4_obs_h_MAM, v4_mod_h_MAM, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
+                               XLabel=v1obs.name + '(' + v1obs.units + ')', YLabel=v2obs.name + '(' + v2obs.units + ')',
+                               ZLabel=v3obs.name + '(' + v3obs.units + ')',
+                               s=2, col_num=-1, Frequency ='M')
+                fig10_s2.savefig(os.path.join(output_path, "%s_%s_response4_s2.png" % (ModName, region)),
+                                bbox_inches='tight')
+
+                fig10_s3 = Plot_response4(v1_obs_h_JJA, v1_mod_h_JJA, v2_obs_h_JJA, v2_mod_h_JJA,v3_obs_h_JJA, v3_mod_h_JJA, v4_obs_h_JJA, v4_mod_h_JJA, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
+                               XLabel=v1obs.name + '(' + v1obs.units + ')', YLabel=v2obs.name + '(' + v2obs.units + ')',
+                               ZLabel=v3obs.name + '(' + v3obs.units + ')',
+                               s=3, col_num=-1, Frequency ='M')
+                fig10_s3.savefig(os.path.join(output_path, "%s_%s_response4_s3.png" % (ModName, region)),
+                                bbox_inches='tight')
+
+                fig10_s4 = Plot_response4(v1_obs_h_SON, v1_mod_h_SON, v2_obs_h_SON, v2_mod_h_SON,v3_obs_h_SON, v3_mod_h_SON, v4_obs_h_SON, v4_mod_h_SON, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
+                               XLabel=v1obs.name + '(' + v1obs.units + ')', YLabel=v2obs.name + '(' + v2obs.units + ')',
+                               ZLabel=v3obs.name + '(' + v3obs.units + ')',
+                               s=4, col_num=-1, Frequency ='M')
+                fig10_s4.savefig(os.path.join(output_path, "%s_%s_response4_s4.png" % (ModName, region)),
+                                bbox_inches='tight')
+
+                plt.close('all')
                 outputlist = []
                 fig4_variable = PlotFourVariableCorr(v1_obs_one, v1_mod_one, v2_obs_one, v2_mod_one, v3_obs_one, v3_mod_one,
                                                v4_obs_one, v4_mod_one, FigTitle=self.RegionsName[region]+'\n'+v4obs.name + '(' + v4obs.units + ')',
@@ -1791,7 +1803,7 @@ class ConfSite(Confrontation):
 
                     fig_TimeSeries_cycle_hourofday = CyclesOneModel_Plot(obs_one, mod_one, FrequencyRule='H',
                                                                          FigTitle=self.RegionsName[region],
-                                                                         XLabel='Hours of A Day',
+                                                                         XLabel='Hours of A Day(Annual)',
                                                                          YLabel=ILAMB_Var_OBS.name + '(' + ILAMB_Var_OBS.units + ')',
                                                                          ModLegend=ModName)
                     fig_TimeSeries_cycle_hourofday.savefig(
@@ -1866,7 +1878,7 @@ class ConfSite(Confrontation):
 
                     print('Processing_PDFCDF: SITE(' + str(siteid) + ')')
                     fig_PDF_CDF = PDFCDFOneModel_Plot(obs_h, mod_h, FigTitle=self.RegionsName[region],
-                                        XLabel='Hourly ' + ILAMB_Var_OBS.name + '(' + ILAMB_Var_OBS.units + ')', ModLegend='Mod1')
+                                        XLabel='Hourly ' + ILAMB_Var_OBS.name + '(' + ILAMB_Var_OBS.units + ')', ModLegend='MOD')
                     fig_PDF_CDF.savefig(os.path.join(output_path, "%s_%s_PDFCDF.png" % (ModName, region)),
                                         bbox_inches='tight')
                     plt.close("all")
@@ -2036,7 +2048,7 @@ class ConfSite(Confrontation):
                     # print('Hours of A day')
                     fig_TimeSeries_cycle_dayofyear = CyclesMoreModel_Plot(obs_one, mod_one, FrequencyRule='D',
                                                                          FigTitle=self.RegionsName[region],
-                                                                         XLabel='Days of A Year',
+                                                                         XLabel='Days of A Year(Annual)',
                                                                          YLabel=ILAMB_Var_OBS.name + '(' + ILAMB_Var_OBS.units + ')',
                                                                          ModLegend=ModName)
                     fig_TimeSeries_cycle_dayofyear.savefig(
@@ -2103,7 +2115,7 @@ class ConfSite(Confrontation):
                     print('Processing_MoreModel_PDFCDF: SITE(' + str(siteid) + ')')
                     fig_PDF_CDF = PDFCDFMoreModel_Plot(obs_h, mod_h, FigTitle=self.RegionsName[region],
                                                       XLabel='Hourly ' + ILAMB_Var_OBS.name + '(' + ILAMB_Var_OBS.units + ')',
-                                                      ModLegend='Mod1')
+                                                      ModLegend='MOD')
                     fig_PDF_CDF.savefig(os.path.join(output_path, "%s_%s_PDFCDF.png" % (ModName, region)),
                                         bbox_inches='tight')
                     plt.close("all")
@@ -2111,12 +2123,12 @@ class ConfSite(Confrontation):
                     print('Processing_MoreModel_TaylorGram: SITE(' + str(siteid) + ')')
 
                     fig_TimeSeries_TaylorGram = Plot_TimeSeries_TaylorGram(obs_h, mod_h, col_num=-1,
-                                                                           FigName='Time Series(Hourly, Daily, Monthly)')
+                                                                           FigName='Time Series(H, D, M)')
                     fig_TimeSeries_TaylorGram.savefig(
                         os.path.join(output_path, "%s_%s_timeseries_taylorgram.png" % (ModName, region)))
 
                     figannual_taylorgram = Plot_TimeSeries_TaylorGram_annual(obs_h, mod_h, col_num=-1,
-                                                                             FigName='Yearly Time Series with Four seasons')
+                                                                             FigName='Time Series(Four seasons)')
                     figannual_taylorgram.savefig(
                         os.path.join(output_path, "%s_%s_timeseries_taylorgram_annual.png" % (ModName, region)))
 
